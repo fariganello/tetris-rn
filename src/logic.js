@@ -19,7 +19,7 @@ export const generateTetriminosBag = () => {
   return bag;
 };
 
-//GENERATE STAGE
+//STAGE
 
 export const createGrid = () => {
   const newGrid = [];
@@ -29,6 +29,17 @@ export const createGrid = () => {
 
     for (let j = 0; j < 10; j++) {
       newGrid[i][j] = {value: 0, state: 'clear'};
+    }
+  }
+  return newGrid;
+};
+
+export const clearGrid = (grid) => {
+  const newGrid = [...grid];
+
+  for (let y = 0; y < newGrid.length; y++) {
+    for (let x = 0; x < newGrid[y].length; x++) {
+      newGrid[y][x].value = grid[y][x].state === 'clear' ? 0 : 1;
     }
   }
   return newGrid;
@@ -55,19 +66,6 @@ export const checkCollision = (piece, grid, {moveX, moveY}) => {
 };
 
 // PIECE MOVEMENT
-
-export const clearGrid = (setGrid) => {
-  setGrid((prevGrid) => {
-    const newGrid = [...prevGrid];
-
-    for (let y = 0; y < 40; y++) {
-      for (let x = 0; x < 10; x++) {
-        newGrid[y][x].value = prevGrid[y][x].state === 'clear' ? 0 : 1;
-      }
-    }
-    return newGrid;
-  });
-};
 
 export const handleMove = (piece, setPiece, setGrid, {moveX, moveY}) => {
   setGrid((prevGrid) => {
