@@ -3,6 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {GameLoop} from 'react-native-game-engine';
 import {
   checkCollision,
+  clearGrid,
   createGrid,
   generateTetriminosBag,
   handleMove,
@@ -16,7 +17,9 @@ const Tetris = () => {
     coordinates: {x: 4, y: 22},
   });
 
-  const grid = createGrid();
+  const [grid, setGrid] = useState(createGrid());
+
+  const [touchEvent, setTouchEvent] = useState(false);
 
   // useEffect(() => {
   //   const tick = setInterval(() => {
@@ -32,22 +35,22 @@ const Tetris = () => {
     const move = touches.find((x) => x.type === 'move');
 
     if (move) {
+      setTouchEvent(true);
+
+      setTimeout(() => {
+        // now set to false later (example here is 1/2 sec)
+        setTouchEvent(false);
+      }, 200);
+
       const dirX = move && move.delta.pageX > 0 ? 1 : -1;
       const collision = checkCollision(piece, grid, {moveX: dirX, moveY: 0});
 
-      if (!collision) {
-        handleMove(setPiece, {moveX: dirX, moveY: 0});
+      if (!touchEvent && !collision) {
+        clearGrid(setGrid);
+        handleMove(piece, setPiece, setGrid, {moveX: dirX, moveY: 0});
       }
     }
   };
-
-  piece.tetrimino.shape[0].forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (value === 1) {
-        grid[piece.coordinates.y + y][piece.coordinates.x + x - 1].value = 1;
-      }
-    });
-  });
 
   return (
     <GameLoop onUpdate={updateHandler}>
