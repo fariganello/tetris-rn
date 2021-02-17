@@ -46,7 +46,7 @@ const Tetris = () => {
       const collision = checkCollision(piece, grid, {moveX: dirX, moveY: 0});
 
       if (!touchEvent && !collision) {
-        clearGrid(setGrid);
+        setGrid((prevGrid) => clearGrid(prevGrid));
         handleMove(piece, setPiece, setGrid, {moveX: dirX, moveY: 0});
       }
     }
