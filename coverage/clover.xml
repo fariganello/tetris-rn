@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1613582824522" clover="3.2.0">
-  <project timestamp="1613582824522" name="All files">
-    <metrics statements="64" coveredstatements="37" conditionals="26" coveredconditionals="5" methods="17" coveredmethods="8" elements="107" coveredelements="50" complexity="0" loc="64" ncloc="64" packages="3" files="4" classes="4"/>
+<coverage generated="1613592296534" clover="3.2.0">
+  <project timestamp="1613592296534" name="All files">
+    <metrics statements="61" coveredstatements="37" conditionals="24" coveredconditionals="5" methods="16" coveredmethods="8" elements="101" coveredelements="50" complexity="0" loc="61" ncloc="61" packages="3" files="4" classes="4"/>
     <package name="tetrisRN">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <file name="App.js" path="G:\Programming Projects\React Native\tetrisRN\App.js">
@@ -11,9 +11,9 @@
       </file>
     </package>
     <package name="tetrisRN.src">
-      <metrics statements="40" coveredstatements="25" conditionals="10" coveredconditionals="2" methods="8" coveredmethods="4"/>
+      <metrics statements="34" coveredstatements="25" conditionals="8" coveredconditionals="2" methods="7" coveredmethods="4"/>
       <file name="logic.js" path="G:\Programming Projects\React Native\tetrisRN\src\logic.js">
-        <metrics statements="39" coveredstatements="24" conditionals="10" coveredconditionals="2" methods="8" coveredmethods="4"/>
+        <metrics statements="33" coveredstatements="24" conditionals="8" coveredconditionals="2" methods="7" coveredmethods="4"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="28" type="stmt"/>
         <line num="8" count="28" type="stmt"/>
@@ -39,20 +39,14 @@
         <line num="50" count="1" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
         <line num="52" count="0" type="stmt"/>
-        <line num="53" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="54" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="60" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="70" count="1" type="stmt"/>
-        <line num="71" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="74" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
-        <line num="76" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="77" count="0" type="stmt"/>
-        <line num="83" count="0" type="stmt"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="86" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
       </file>
       <file name="tetriminos.js" path="G:\Programming Projects\React Native\tetrisRN\src\tetriminos.js">
         <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
@@ -60,31 +54,34 @@
       </file>
     </package>
     <package name="tetrisRN.src.screens">
-      <metrics statements="22" coveredstatements="10" conditionals="16" coveredconditionals="3" methods="8" coveredmethods="3"/>
+      <metrics statements="25" coveredstatements="10" conditionals="16" coveredconditionals="3" methods="8" coveredmethods="3"/>
       <file name="Tetris.js" path="G:\Programming Projects\React Native\tetrisRN\src\screens\Tetris.js">
-        <metrics statements="22" coveredstatements="10" conditionals="16" coveredconditionals="3" methods="8" coveredmethods="3"/>
+        <metrics statements="25" coveredstatements="10" conditionals="16" coveredconditionals="3" methods="8" coveredmethods="3"/>
         <line num="12" count="1" type="stmt"/>
         <line num="13" count="4" type="stmt"/>
         <line num="15" count="4" type="stmt"/>
-        <line num="20" count="4" type="stmt"/>
-        <line num="22" count="4" type="stmt"/>
-        <line num="30" count="4" type="stmt"/>
-        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="37" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="40" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
-        <line num="45" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="48" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="49" count="0" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
+        <line num="23" count="4" type="stmt"/>
+        <line num="31" count="4" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="49" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="50" count="0" type="stmt"/>
-        <line num="55" count="4" type="stmt"/>
-        <line num="59" count="160" type="stmt"/>
-        <line num="63" count="800" type="stmt"/>
-        <line num="83" count="1" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="91" count="4" type="stmt"/>
+        <line num="95" count="160" type="stmt"/>
+        <line num="99" count="800" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
       </file>
     </package>
   </project>

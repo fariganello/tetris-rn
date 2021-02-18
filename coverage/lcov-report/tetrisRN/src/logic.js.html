@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60.42% </span>
+                <span class="strong">74.36% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>29/48</span>
+                <span class='fraction'>29/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/10</span>
+                <span class='fraction'>2/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">57.14% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/8</span>
+                <span class='fraction'>4/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">61.54% </span>
+                <span class="strong">72.73% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>24/39</span>
+                <span class='fraction'>24/33</span>
             </div>
         
             
@@ -141,17 +141,7 @@
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -204,6 +194,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -221,20 +215,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -295,9 +275,13 @@ export const clearGrid = (grid) =&gt; {
 //COLLISIONS
 &nbsp;
 export const checkCollision = <span class="fstat-no" title="function not covered" >(p</span>iece, grid, {moveX, moveY}) =&gt; {
-<span class="cstat-no" title="statement not covered" >  for (let y = <span class="cstat-no" title="statement not covered" >0;</span> y &lt; piece.tetrimino.shape[0].length; y++) {</span>
-<span class="cstat-no" title="statement not covered" >    for (let x = <span class="cstat-no" title="statement not covered" >0;</span> x &lt; piece.tetrimino.shape[0][y].length; x++) {</span>
-<span class="cstat-no" title="statement not covered" >      if (piece.tetrimino.shape[0][y][x] === 1) {</span>
+<span class="cstat-no" title="statement not covered" >  for (let y = <span class="cstat-no" title="statement not covered" >0;</span> y &lt; piece.tetrimino.shape[piece.orientation].length; y++) {</span>
+<span class="cstat-no" title="statement not covered" >    for (</span>
+      let x = <span class="cstat-no" title="statement not covered" >0;</span>
+      x &lt; piece.tetrimino.shape[piece.orientation][y].length;
+      x++
+    ) {
+<span class="cstat-no" title="statement not covered" >      if (piece.tetrimino.shape[piece.orientation][y][x] === 1) {</span>
 <span class="cstat-no" title="statement not covered" >        if (</span>
           !grid[y + piece.coordinates.y + moveY] ||
           !grid[y + piece.coordinates.y + moveY][
@@ -315,20 +299,6 @@ export const checkCollision = <span class="fstat-no" title="function not covered
 // PIECE MOVEMENT
 &nbsp;
 export const handleMove = <span class="fstat-no" title="function not covered" >(p</span>iece, setPiece, setGrid, {moveX, moveY}) =&gt; {
-<span class="cstat-no" title="statement not covered" >  setGrid(<span class="fstat-no" title="function not covered" >(p</span>revGrid) =&gt; {</span>
-    const newGrid = <span class="cstat-no" title="statement not covered" >[...prevGrid];</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    for (let y = <span class="cstat-no" title="statement not covered" >0;</span> y &lt; piece.tetrimino.shape[0].length; y++) {</span>
-<span class="cstat-no" title="statement not covered" >      for (let x = <span class="cstat-no" title="statement not covered" >0;</span> x &lt; piece.tetrimino.shape[0][y].length; x++) {</span>
-<span class="cstat-no" title="statement not covered" >        if (piece.tetrimino.shape[0][y][x] === 1) {</span>
-<span class="cstat-no" title="statement not covered" >          newGrid[y + piece.coordinates.y + moveY][</span>
-            x + piece.coordinates.x + moveX - 1
-          ] = {value: 1, state: 'clear'};
-        }
-      }
-    }
-<span class="cstat-no" title="statement not covered" >    return newGrid;</span>
-  });
 <span class="cstat-no" title="statement not covered" >  setPiece(<span class="fstat-no" title="function not covered" >(p</span>revPiece) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
       ...prevPiece,
@@ -346,7 +316,7 @@ export const handleMove = <span class="fstat-no" title="function not covered" >(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Wed Feb 17 2021 14:27:04 GMT-0300 (Argentina Standard Time)
+                at Wed Feb 17 2021 17:04:56 GMT-0300 (Argentina Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

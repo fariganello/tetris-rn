@@ -7,6 +7,8 @@ import {
   createGrid,
   generateTetriminosBag,
   handleMove,
+  modifyPiece,
+  updateGrid,
 } from '../logic';
 
 const Tetris = () => {
@@ -14,6 +16,7 @@ const Tetris = () => {
 
   const [piece, setPiece] = useState({
     tetrimino: piecesBag[0],
+    orientation: 0,
     coordinates: {x: 4, y: 22},
   });
 
@@ -28,28 +31,52 @@ const Tetris = () => {
   // }, []);
 
   const updateHandler = ({touches}) => {
-    if (piecesBag.length <= 1) {
-      setPiecesBag((prevBag) => [...prevBag].push(generateTetriminosBag()));
-    }
+    // if (piecesBag.length <= 1) {
+    //   setPiecesBag((prevBag) => [...prevBag].push(generateTetriminosBag()));
+    // }
+    const {tetrimino, orientation} = piece;
 
     const move = touches.find((x) => x.type === 'move');
 
+    setGrid(clearGrid(grid));
+
     if (move) {
       setTouchEvent(true);
-
       setTimeout(() => {
         // now set to false later (example here is 1/2 sec)
         setTouchEvent(false);
       }, 200);
 
       const dirX = move && move.delta.pageX > 0 ? 1 : -1;
-      const collision = checkCollision(piece, grid, {moveX: dirX, moveY: 0});
+      const collision = checkCollision(piece, orientation, grid, {
+        moveX: dirX,
+        moveY: 0,
+      });
 
       if (!touchEvent && !collision) {
-        setGrid((prevGrid) => clearGrid(prevGrid));
         handleMove(piece, setPiece, setGrid, {moveX: dirX, moveY: 0});
       }
     }
+
+    const press = touches.find((x) => x.type === 'press');
+
+    if (press) {
+      const newOrientation =
+        orientation === tetrimino.shape.length - 1 ? 0 : orientation + 1;
+      if (!checkCollision(piece, newOrientation, grid, {moveX: 0, moveY: 0})) {
+        setPiece((prevPiece) => modifyPiece(prevPiece, 0, 0, newOrientation));
+      } else if (
+        !checkCollision(piece, newOrientation, grid, {moveX: 1, moveY: 0})
+      ) {
+        setPiece((prevPiece) => modifyPiece(prevPiece, 1, 0, newOrientation));
+      } else if (
+        !checkCollision(piece, newOrientation, grid, {moveX: -1, moveY: 0})
+      ) {
+        setPiece((prevPiece) => modifyPiece(prevPiece, -1, 0, newOrientation));
+      }
+    }
+
+    setGrid((prevGrid) => updateGrid(piece, prevGrid));
   };
 
   return (

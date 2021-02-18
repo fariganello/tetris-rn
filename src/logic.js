@@ -45,17 +45,38 @@ export const clearGrid = (grid) => {
   return newGrid;
 };
 
+export const updateGrid = (piece, grid) => {
+  const newGrid = [...grid];
+
+  for (let y = 0; y < piece.tetrimino.shape[piece.orientation].length; y++) {
+    for (
+      let x = 0;
+      x < piece.tetrimino.shape[piece.orientation][y].length;
+      x++
+    ) {
+      if (piece.tetrimino.shape[piece.orientation][y][x] === 1) {
+        newGrid[y + piece.coordinates.y][x + piece.coordinates.x + -1] = {
+          value: 1,
+          state: 'clear',
+        };
+      }
+    }
+  }
+  return newGrid;
+};
+
 //COLLISIONS
 
-export const checkCollision = (piece, grid, {moveX, moveY}) => {
-  for (let y = 0; y < piece.tetrimino.shape[0].length; y++) {
-    for (let x = 0; x < piece.tetrimino.shape[0][y].length; x++) {
-      if (piece.tetrimino.shape[0][y][x] === 1) {
+export const checkCollision = (piece, orientation, grid, {moveX, moveY}) => {
+  const {coordinates, tetrimino} = piece;
+  const shape = tetrimino.shape[orientation];
+
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape[y].length; x++) {
+      if (shape[y][x] === 1) {
         if (
-          !grid[y + piece.coordinates.y + moveY] ||
-          !grid[y + piece.coordinates.y + moveY][
-            x + piece.coordinates.x + moveX - 1
-          ]
+          !grid[y + coordinates.y + moveY] ||
+          !grid[y + coordinates.y + moveY][x + coordinates.x + moveX - 1]
         ) {
           return true;
         }
@@ -66,29 +87,19 @@ export const checkCollision = (piece, grid, {moveX, moveY}) => {
 };
 
 // PIECE MOVEMENT
+export const modifyPiece = (piece, moveX, moveY, orientation) => {
+  return {
+    ...piece,
+    coordinates: {
+      x: piece.coordinates.x + moveX,
+      y: piece.coordinates.y + moveY,
+    },
+    orientation,
+  };
+};
 
 export const handleMove = (piece, setPiece, setGrid, {moveX, moveY}) => {
-  setGrid((prevGrid) => {
-    const newGrid = [...prevGrid];
-
-    for (let y = 0; y < piece.tetrimino.shape[0].length; y++) {
-      for (let x = 0; x < piece.tetrimino.shape[0][y].length; x++) {
-        if (piece.tetrimino.shape[0][y][x] === 1) {
-          newGrid[y + piece.coordinates.y + moveY][
-            x + piece.coordinates.x + moveX - 1
-          ] = {value: 1, state: 'clear'};
-        }
-      }
-    }
-    return newGrid;
-  });
-  setPiece((prevPiece) => {
-    return {
-      ...prevPiece,
-      coordinates: {
-        x: prevPiece.coordinates.x + moveX,
-        y: prevPiece.coordinates.y + moveY,
-      },
-    };
-  });
+  setPiece((prevPiece) =>
+    modifyPiece(prevPiece, moveX, moveY, prevPiece.orientation),
+  );
 };
