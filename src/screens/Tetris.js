@@ -5,6 +5,7 @@ import Grid from '../components/Grid';
 import {
   checkCollision,
   clearGrid,
+  clearLines,
   createGrid,
   generateTetriminosBag,
   mergePiece,
@@ -17,23 +18,7 @@ const Tetris = () => {
   const initialBag = generateTetriminosBag();
   const initialTetrimino = initialBag.pop();
   const initialGrid = createGrid();
-  // const [piecesBag, setPiecesBag] = useState(generateTetriminosBag());
 
-  // const [piece, setPiece] = useState({
-  //   tetrimino: piecesBag.shift(),
-  //   orientation: 0,
-  //   coordinates: {x: 4, y: 20},
-  // });
-
-  // const [grid, setGrid] = useState(createGrid());
-
-  // const [touchEvent, setTouchEvent] = useState(false);
-
-  // useEffect(() => {
-  //   const tick = setInterval(() => {
-     
-  //   }, 1000);
-  // }, []);
   const [running, setRunning] = useState(true);
 
   onEvent = (e) => {
@@ -77,19 +62,12 @@ const Tetris = () => {
       screen.grid = clearGrid(grid);
   
       if (move) {
-        // setTouchEvent(true);
-        // setTimeout(() => {
-        //   // now set to false later (example here is 1/2 sec)
-        //   setTouchEvent(false);
-        // }, 200);
-  
         const dirX = move && move.delta.pageX > 0 ? 1 : -1;
         const collision = checkCollision(tetrimino, orientation, grid, {
           moveX: dirX,
           moveY: 0,
         });
   
-        // if (!touchEvent && !collision) {
         if (!collision) {
           tetrimino = updateTetrimino(tetrimino, dirX, 0, orientation);
         }
@@ -116,12 +94,12 @@ const Tetris = () => {
 
     } else {
       screen.grid = mergePiece(tetrimino, grid);
+      screen.grid = clearLines(grid);
       tetrimino.collisioned = false;
       const newTetrimino = tetriminosBag.pop();
       tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 18, 0);
     }
     
-
     return {
       screen,
       tetrimino,

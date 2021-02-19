@@ -21,16 +21,23 @@ export const generateTetriminosBag = () => {
 
 //STAGE
 
+export const createNewBlankLine = () => {
+  const newLine = [];
+
+  for (let i = 0; i < 10; i++) {
+    newLine[i] = {value: 0, state: 'clear'};
+  }
+
+  return newLine;
+}
+
 export const createGrid = () => {
   const newGrid = [];
 
   for (let i = 0; i < 40; i++) {
-    newGrid[i] = [];
-
-    for (let j = 0; j < 10; j++) {
-      newGrid[i][j] = {value: 0, state: 'clear'};
-    }
+    newGrid[i] = createNewBlankLine();
   }
+
   return newGrid;
 };
 
@@ -40,6 +47,27 @@ export const clearGrid = (grid) => {
   for (let y = 0; y < newGrid.length; y++) {
     for (let x = 0; x < newGrid[y].length; x++) {
       newGrid[y][x].value = grid[y][x].state === 'clear' ? 0 : grid[y][x].value;
+    }
+  }
+  
+  return newGrid;
+};
+
+export const clearLines = (grid) => {
+  const newGrid = [...grid];
+
+  for (let y = 0; y < newGrid.length; y++) {
+    let clear = true;
+    
+    for (let x = 0; x < newGrid[y].length; x++) {
+      if(newGrid[y][x].state === 'clear') {
+        clear = false;
+      }
+    }
+
+    if(clear){
+      newGrid.splice(y, 1);
+      newGrid.unshift(createNewBlankLine())
     }
   }
   return newGrid;
