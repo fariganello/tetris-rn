@@ -34,7 +34,53 @@ const Tetris = () => {
     let {screen, tetrimino, tetriminosBag, lines} = entities;
     const {grid} = screen;
     const {shapes, orientation, coordinates, collisioned, nextMove, updateFrequency} = tetrimino;
-   
+    
+    if (events.length){
+      for(let i=0 ; i < events.length ; i++){
+        let dirX = 0;
+        let dirY = 0;
+
+        if(/^move/.test(events[i].type)){
+          if (events[i].type === "move-down"){
+            dirY = 1;
+          } else if (events[i].type === "move-left"){
+            dirX = -1;
+          } else if (events[i].type === "move-right"){
+            dirX = 1;
+          }
+
+          const collision = checkCollision(tetrimino, orientation, grid, {
+            moveX: dirX,
+            moveY: dirY,
+          });
+          if (!collision) {
+            tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
+          } else if (coordinates.y < 20) {
+            dispatch({ type: "game-over" })
+          } else if (dirY === 1) {
+            tetrimino.collisioned = true;    
+          }
+        }
+          
+        if (events[i].type === "rotation"){
+          const newOrientation =
+            orientation === shapes.length - 1 ? 0 : orientation + 1;
+          if (!checkCollision(tetrimino, newOrientation, grid, {moveX: 0, moveY: 0})) {
+            tetrimino = updateTetrimino(tetrimino, 0, 0, newOrientation);
+          } else if (
+            !checkCollision(tetrimino, newOrientation, grid, {moveX: 1, moveY: 0})
+          ) {
+            tetrimino = updateTetrimino(tetrimino, 1, 0, newOrientation);
+          } else if (
+            !checkCollision(tetrimino, newOrientation, grid, {moveX: -1, moveY: 0})
+          ) {
+            tetrimino = updateTetrimino(tetrimino, -1, 0, newOrientation);
+          }
+        }
+          
+      }
+    }
+
     tetrimino.nextMove--;
 
     if (tetriminosBag.length === 1) {
@@ -44,54 +90,30 @@ const Tetris = () => {
     if (nextMove === 0){
       tetrimino.nextMove = updateFrequency;
 
-      const collision = checkCollision(tetrimino, orientation, grid, {
-            moveX: 0,
-            moveY: 1,
-      });
-    
-      if (!collision) {
-        tetrimino = updateTetrimino(tetrimino, 0, 1, orientation);
-      } else if(coordinates.y < 20) {
-        dispatch({ type: "game-over" })
-      } else {
-        tetrimino.collisioned = true;    
-      }
+      dispatch({ type: "move-down" });
     }
 
     if(!collisioned) {
-      const move = touches.find((x) => x.type === 'move');
-
       screen.grid = clearGrid(grid);
   
+      const move = touches.find((x) => x.type === 'move');
+
       if (move) {
         const dirX = move && move.delta.pageX > 0 ? 1 : -1;
-        const collision = checkCollision(tetrimino, orientation, grid, {
-          moveX: dirX,
-          moveY: 0,
-        });
-  
-        if (!collision) {
-          tetrimino = updateTetrimino(tetrimino, dirX, 0, orientation);
+        
+        if(dirX < 0) {
+          dispatch({ type: "move-left" });
+        } else {
+          dispatch({ type: "move-right" });
         }
       }
   
       const press = touches.find((x) => x.type === 'press');
   
       if (press) {
-        const newOrientation =
-          orientation === shapes.length - 1 ? 0 : orientation + 1;
-        if (!checkCollision(tetrimino, newOrientation, grid, {moveX: 0, moveY: 0})) {
-          tetrimino = updateTetrimino(tetrimino, 0, 0, newOrientation);
-        } else if (
-          !checkCollision(tetrimino, newOrientation, grid, {moveX: 1, moveY: 0})
-        ) {
-          tetrimino = updateTetrimino(tetrimino, 1, 0, newOrientation);
-        } else if (
-          !checkCollision(tetrimino, newOrientation, grid, {moveX: -1, moveY: 0})
-        ) {
-          tetrimino = updateTetrimino(tetrimino, -1, 0, newOrientation);
-        }
+        dispatch({ type: "rotation" });
       }
+
       screen.grid = updateGrid(tetrimino, grid);
 
     } else {
