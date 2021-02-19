@@ -33,10 +33,11 @@ const styles = StyleSheet.create({
     grid: {
       flex: 1,
       flexDirection: 'column',
-      marginHorizontal: 90,
       justifyContent: 'flex-end',
+      alignItems: 'flex-start',
       height: 100,
-      marginBottom: 80,
+      width: 200,
+      backgroundColor: "grey",
     },
     row: {
       flexDirection: 'row',
