@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {GameEngine, dispatch } from 'react-native-game-engine';
-import {Alert} from "react-native";
+import {Alert, StatusBar, StyleSheet, Text, View} from "react-native";
 import Grid from '../components/Grid';
+import Lines from '../components/Lines';
 import {
   checkCollision,
   clearGrid,
@@ -20,6 +21,8 @@ const Tetris = () => {
   const initialGrid = createGrid();
 
   const [running, setRunning] = useState(true);
+  const [engine, setEngine] = useState(null);
+  const [lines, setLines] = useState(0);
 
   onEvent = (e) => {
     if (e.type === "game-over") {
@@ -27,9 +30,8 @@ const Tetris = () => {
         Alert.alert("Game Over");
     }
   } 
-
   const updateHandler = (entities, {touches, dispatch, events}) => {
-    let {screen, tetrimino, tetriminosBag} = entities;
+    let {screen, tetrimino, tetriminosBag, lines} = entities;
     const {grid} = screen;
     const {shapes, orientation, coordinates, collisioned, nextMove, updateFrequency} = tetrimino;
    
@@ -94,7 +96,8 @@ const Tetris = () => {
 
     } else {
       screen.grid = mergePiece(tetrimino, grid);
-      screen.grid = clearLines(grid);
+      const clearedLines = clearLines(screen);
+      setLines(lines + clearedLines);
       tetrimino.collisioned = false;
       const newTetrimino = tetriminosBag.pop();
       tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 18, 0);
@@ -104,28 +107,64 @@ const Tetris = () => {
       screen,
       tetrimino,
       tetriminosBag,
+      lines,
     };
   };
 
   return (
-    <GameEngine 
-    systems={[ updateHandler ]}
-    entities={{
-      screen: {grid: initialGrid, renderer: <Grid />},
-      tetrimino: { 
-        shapes: initialTetrimino,
-        orientation: 0,
-        coordinates: {x: 4, y: 18},
-        collisioned: false,
-        nextMove: 10,
-        updateFrequency: 10,
-      },
-      tetriminosBag: initialBag,
-    }}
-    onEvent={this.onEvent}
-    running={running}>
-    </GameEngine>
+    <View style={styles.container}>
+      <View style={styles.topContainer}>
+        <View style={styles.sidebar}>
+          <Text>LEFT</Text>
+        </View>
+        <GameEngine 
+        ref={(ref) => setEngine(ref)}
+        systems={[ updateHandler ]}
+        entities={{
+          tetrimino: { 
+            shapes: initialTetrimino,
+            orientation: 0,
+            coordinates: {x: 4, y: 18},
+            collisioned: false,
+            nextMove: 10,
+            updateFrequency: 10,
+          },
+          tetriminosBag: initialBag,
+          lines: 0,
+          screen: {grid: initialGrid, renderer: <Grid/>},
+        }}
+        onEvent={onEvent}
+        running={running}>
+          <StatusBar hidden={true} />
+          <Lines linesCounter={lines ? lines : 0}/>
+        </GameEngine>
+      </View>
+      <View style={styles.bottomBar}>
+        <Text>BOTTOM BAR</Text>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex:1,
+    flexDirection: "column",
+  },
+  sidebar: {
+    width: 80,
+    backgroundColor: "blue",
+    height: 400,
+  },
+  topContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: 'flex-end',
+  },
+  bottomBar: {
+    backgroundColor: "yellow",
+    height: 80,
+  }
+});
 
 export default Tetris;

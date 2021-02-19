@@ -53,8 +53,10 @@ export const clearGrid = (grid) => {
   return newGrid;
 };
 
-export const clearLines = (grid) => {
+export const clearLines = (screen) => {
+  const {grid} = screen;
   const newGrid = [...grid];
+  let lines = 0;
 
   for (let y = 0; y < newGrid.length; y++) {
     let clear = true;
@@ -67,10 +69,13 @@ export const clearLines = (grid) => {
 
     if(clear){
       newGrid.splice(y, 1);
-      newGrid.unshift(createNewBlankLine())
+      newGrid.unshift(createNewBlankLine());
+      lines++;
     }
   }
-  return newGrid;
+
+  screen.grid = newGrid;
+  return lines
 };
 
 export const updateGrid = (tetrimino, grid) => {
