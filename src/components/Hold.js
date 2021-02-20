@@ -2,13 +2,15 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {colors} from '../tetriminos';
 
-const Next = ({next}) => {
+const Hold = ({hold}) => {
+    const shape = hold[0];
+
     return (
-        <View style={styles.nextContainer}>
-            <Text style={styles.title}>NEXT</Text>
-            {next && next.map((row, rowIndex) => {
+        <View style={styles.holdContainer}>
+            <Text style={styles.title}>HOLD</Text>
+            {shape && shape.map((row, rowIndex) => {
                 return (
-                    <View style={styles.row} key={rowIndex} testID="next-row">
+                    <View style={styles.row} key={rowIndex} testID="hold-row">
                     {row.map((cell, cellIndex) => (
                         <View
                             style={[
@@ -18,7 +20,7 @@ const Next = ({next}) => {
                                 : {backgroundColor: 'white'},
                             ]}
                             key={cellIndex}
-                            testID="next-cell"
+                            testID="hold-cell"
                         />
                     ))}
                 </View>
@@ -29,9 +31,9 @@ const Next = ({next}) => {
 }
 
 const styles = StyleSheet.create({
-  nextContainer: {
+  holdContainer: {
     position: "absolute",
-    right: 0,
+    left: -80,
     top: 113,
     height: 80,
     width: 80,
@@ -56,4 +58,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Next;
+export default Hold;
