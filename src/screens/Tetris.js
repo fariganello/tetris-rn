@@ -85,6 +85,13 @@ const Tetris = () => {
             tetrimino = updateTetrimino(tetrimino, -1, 0, newOrientation);
           }
         }
+
+        if (events[i].type === "hard-drop"){
+          while(!checkCollision(tetrimino, orientation, grid, {moveX: 0, moveY: 1})) {
+            tetrimino = updateTetrimino(tetrimino, 0, 1, orientation);
+          }
+          tetrimino.collisioned = true;
+        }
           
       }
     }
@@ -145,7 +152,7 @@ const Tetris = () => {
     <View style={styles.container}>
       <View style={styles.topContainer}>
         <View style={styles.sidebar}>
-          <Text>LEFT</Text>
+          <Text></Text>
         </View>
         <GameEngine 
         ref={(ref) => setEngine(ref)}
@@ -176,9 +183,9 @@ const Tetris = () => {
         <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-left" })} }>
           <Feather name="arrow-left" size={50} color="black" />
         </TouchableOpacity>
-        <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-down" })}} onLongPress={() => { engine.dispatch({ type: "hard-drop" })}}>
           <Feather name="arrow-down" size={50} color="black" />
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-right" })} }>
           <Feather name="arrow-right" size={50} color="black" />
         </TouchableOpacity>
@@ -197,7 +204,6 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: 80,
-    backgroundColor: "blue",
     height: 400,
   },
   topContainer: {
@@ -210,6 +216,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: 'space-between',
+    borderTopColor: "black",
+    borderTopWidth: 1,
   },
   buttonContainer: {
     width: 50,
