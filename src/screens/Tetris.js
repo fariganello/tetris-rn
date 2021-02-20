@@ -11,10 +11,12 @@ import {
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
 import Level from '../components/Level';
+import Score from '../components/Score';
 import Next from '../components/Next';
 import Hold from '../components/Hold';
 import HoldButton from '../components/HoldButton';
 import {
+  calculateScore,
   checkCollision,
   clearGrid,
   clearLines,
@@ -26,6 +28,7 @@ import {
   updateGrid,
 } from '../logic';
 import {
+  LINES,
   LINES_TO_LEVELUP,
   SPEED_CHANGE,
   START_POSITION_X,
@@ -42,6 +45,7 @@ const Tetris = () => {
   const [engine, setEngine] = useState(null);
   const [lines, setLines] = useState(0);
   const [level, setLevel] = useState(1);
+  const [score, setScore] = useState(0);
   const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
   const [hold, setHold] = useState([]);
   const [holdPosible, setHoldPosible] = useState(true);
@@ -55,7 +59,7 @@ const Tetris = () => {
   const updateHandler = (entities, { touches, dispatch, events }) => {
     let { screen, tetrimino, tetriminosBag, game } = entities;
     const { grid } = screen;
-    const { lines, level } = game;
+    const { lines, level, score } = game;
     const {
       shapes,
       orientation,
@@ -86,6 +90,11 @@ const Tetris = () => {
 
           if (!collision) {
             tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
+            if (dirY) {
+              const newScore = calculateScore('softDrop', level, 1);
+              game.score = game.score + newScore;
+              setScore(game.score);
+            }
           } else if (dirY === 1 && coordinates.y < 19) {
             dispatch({ type: 'game-over' });
           } else if (dirY === 1) {
@@ -127,14 +136,19 @@ const Tetris = () => {
         }
 
         if (events[i].type === 'hard-drop') {
+          let cellsMoved = 0;
           while (
             !checkCollision(tetrimino, orientation, grid, {
               moveX: 0,
               moveY: 1,
             })
           ) {
+            cellsMoved++;
             tetrimino = updateTetrimino(tetrimino, 0, 1, orientation);
           }
+          const newScore = calculateScore('hardDrop', level, cellsMoved);
+          game.score = game.score + newScore;
+          setScore(game.score);
           tetrimino.collisioned = true;
         }
 
@@ -159,7 +173,7 @@ const Tetris = () => {
     }
     tetrimino.nextMove--;
 
-    if (tetriminosBag.length === 1) {
+    if (tetriminosBag.length <= 2) {
       tetriminosBag = [...generateTetriminosBag(), ...tetriminosBag];
     }
 
@@ -193,9 +207,15 @@ const Tetris = () => {
       screen.grid = updateGrid(tetrimino, grid);
     } else {
       screen.grid = mergePiece(tetrimino, grid);
+
       const clearedLines = clearLines(screen);
-      game.lines = lines + clearedLines;
-      setLines(game.lines);
+      if (clearedLines) {
+        game.lines = lines + clearedLines;
+        setLines(game.lines);
+        const newScore = calculateScore(LINES[clearedLines - 1], game.level);
+        game.score = game.score + newScore;
+        setScore(game.score);
+      }
 
       const newLevel = Math.ceil((game.lines + 1) / LINES_TO_LEVELUP);
       if (newLevel !== game.level) {
@@ -250,7 +270,7 @@ const Tetris = () => {
               updateFrequency: START_UPDATE_FREQUENCY,
             },
             tetriminosBag: initialBag,
-            game: { lines: 0, level: 1 },
+            game: { lines: 0, level: 1, score: 0 },
             screen: { grid: initialGrid, renderer: <Grid /> },
           }}
           onEvent={onEvent}
@@ -259,6 +279,7 @@ const Tetris = () => {
           <StatusBar hidden={true} />
           <Hold hold={hold} />
           <Next next={next} />
+          <Score score={score ? score : 0} />
           <Level level={level ? level : 0} />
           <Lines linesCounter={lines ? lines : 0} />
         </GameEngine>

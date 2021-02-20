@@ -173,3 +173,38 @@ export const resetTetrimino = (tetrimino, shapes, x, y, orientation) => {
     orientation,
   };
 };
+
+// SCORE
+
+export const calculateScore = (event, level, cells) => {
+  let score = 0;
+
+  switch (event) {
+    case 'single': {
+      score = 100 * level;
+      break;
+    }
+    case 'double': {
+      score = 300 * level;
+      break;
+    }
+    case 'triple': {
+      score = 500 * level;
+      break;
+    }
+    case 'tetris': {
+      score = 800 * level;
+      break;
+    }
+    case 'softDrop': {
+      score = 1 * cells;
+      break;
+    }
+    case 'hardDrop': {
+      score = 2 * cells;
+      break;
+    }
+  }
+
+  return score;
+};
