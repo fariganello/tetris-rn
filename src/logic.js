@@ -1,19 +1,19 @@
-import {tetriminos} from './tetriminos';
+import { tetriminos } from './tetriminos';
 
 //GENERATE PIECES
 
 export const shuffleString = (string) => {
-  const array = string.split("");
-  const {length} = array;
+  const array = string.split('');
+  const { length } = array;
 
-  for(var i = length - 1; i > 0; i--) {
+  for (var i = length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = array[i];
     array[i] = array[j];
     array[j] = tmp;
   }
-  return array.join("");
-}
+  return array.join('');
+};
 
 export const generateTetriminosBag = () => {
   const bag = [];
@@ -32,11 +32,11 @@ export const createNewBlankLine = () => {
   const newLine = [];
 
   for (let i = 0; i < 10; i++) {
-    newLine[i] = {value: 0, state: 'clear'};
+    newLine[i] = { value: 0, state: 'clear' };
   }
 
   return newLine;
-}
+};
 
 export const createGrid = () => {
   const newGrid = [];
@@ -56,25 +56,25 @@ export const clearGrid = (grid) => {
       newGrid[y][x].value = grid[y][x].state === 'clear' ? 0 : grid[y][x].value;
     }
   }
-  
+
   return newGrid;
 };
 
 export const clearLines = (screen) => {
-  const {grid} = screen;
+  const { grid } = screen;
   const newGrid = [...grid];
   let lines = 0;
 
   for (let y = 0; y < newGrid.length; y++) {
     let clear = true;
-    
+
     for (let x = 0; x < newGrid[y].length; x++) {
-      if(newGrid[y][x].state === 'clear') {
+      if (newGrid[y][x].state === 'clear') {
         clear = false;
       }
     }
 
-    if(clear){
+    if (clear) {
       newGrid.splice(y, 1);
       newGrid.unshift(createNewBlankLine());
       lines++;
@@ -82,21 +82,17 @@ export const clearLines = (screen) => {
   }
 
   screen.grid = newGrid;
-  return lines
+  return lines;
 };
 
 export const updateGrid = (tetrimino, grid) => {
-  const {shapes, coordinates, orientation} = tetrimino;
+  const { shapes, coordinates, orientation } = tetrimino;
   const shape = shapes[orientation];
   const newGrid = [...grid];
 
   for (let y = 0; y < shape.length; y++) {
-    for (
-      let x = 0;
-      x < shape[y].length;
-      x++
-    ) {
-      if (shape[y][x]) {       
+    for (let x = 0; x < shape[y].length; x++) {
+      if (shape[y][x]) {
         newGrid[y + coordinates.y + 1][x + coordinates.x + -1] = {
           value: shape[y][x],
           state: 'clear',
@@ -108,7 +104,7 @@ export const updateGrid = (tetrimino, grid) => {
 };
 
 export const mergePiece = (tetrimino, grid) => {
-  const {coordinates, shapes, orientation} = tetrimino;
+  const { coordinates, shapes, orientation } = tetrimino;
   const shape = shapes[orientation];
   const newGrid = [...grid];
 
@@ -128,8 +124,13 @@ export const mergePiece = (tetrimino, grid) => {
 
 //COLLISIONS
 
-export const checkCollision = (tetrimino, orientation, grid, {moveX, moveY}) => {
-  const {coordinates, shapes} = tetrimino;
+export const checkCollision = (
+  tetrimino,
+  orientation,
+  grid,
+  { moveX, moveY }
+) => {
+  const { coordinates, shapes } = tetrimino;
   const shape = shapes[orientation];
 
   for (let y = 0; y < shape.length; y++) {
@@ -138,7 +139,8 @@ export const checkCollision = (tetrimino, orientation, grid, {moveX, moveY}) => 
         if (
           !grid[y + coordinates.y + moveY + 1] ||
           !grid[y + coordinates.y + moveY + 1][x + coordinates.x + moveX - 1] ||
-          grid[y + coordinates.y + moveY + 1][x + coordinates.x + moveX - 1].state === 'merged'
+          grid[y + coordinates.y + moveY + 1][x + coordinates.x + moveX - 1]
+            .state === 'merged'
         ) {
           return true;
         }
@@ -170,4 +172,39 @@ export const resetTetrimino = (tetrimino, shapes, x, y, orientation) => {
     },
     orientation,
   };
+};
+
+// SCORE
+
+export const calculateScore = (event, level, cells) => {
+  let score = 0;
+
+  switch (event) {
+    case 'single': {
+      score = 100 * level;
+      break;
+    }
+    case 'double': {
+      score = 300 * level;
+      break;
+    }
+    case 'triple': {
+      score = 500 * level;
+      break;
+    }
+    case 'tetris': {
+      score = 800 * level;
+      break;
+    }
+    case 'softDrop': {
+      score = 1 * cells;
+      break;
+    }
+    case 'hardDrop': {
+      score = 2 * cells;
+      break;
+    }
+  }
+
+  return score;
 };
