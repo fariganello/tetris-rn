@@ -2,18 +2,25 @@ import {tetriminos} from './tetriminos';
 
 //GENERATE PIECES
 
-export const generateRandomTetrimino = () => {
-  const tetriminoString = 'IOTSZJL';
+export const shuffleString = (string) => {
+  const array = string.split("");
+  const {length} = array;
 
-  const randomIndex = tetriminoString[Math.floor(Math.random() * 7)];
-  return tetriminos[randomIndex].shapes;
-};
+  for(var i = length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = array[i];
+    array[i] = array[j];
+    array[j] = tmp;
+  }
+  return array.join("");
+}
 
 export const generateTetriminosBag = () => {
   const bag = [];
+  const tetriminoString = shuffleString('IOTSZJL');
 
   for (let i = 0; i < 7; i++) {
-    bag.push(generateRandomTetrimino());
+    bag.push(tetriminos[tetriminoString[i]].shapes);
   }
 
   return bag;

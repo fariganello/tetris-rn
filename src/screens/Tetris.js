@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {GameEngine, dispatch } from 'react-native-game-engine';
-import {Alert, StatusBar, StyleSheet, Text, View} from "react-native";
+import { AntDesign, Feather } from '@expo/vector-icons'; 
+import {Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
 import {
@@ -34,7 +35,60 @@ const Tetris = () => {
     let {screen, tetrimino, tetriminosBag, lines} = entities;
     const {grid} = screen;
     const {shapes, orientation, coordinates, collisioned, nextMove, updateFrequency} = tetrimino;
-   
+    
+    if (events.length){
+      for(let i=0 ; i < events.length ; i++){
+        let dirX = 0;
+        let dirY = 0;
+
+        if(/^move/.test(events[i].type)){
+          if (events[i].type === "move-down"){
+            dirY = 1;
+          } else if (events[i].type === "move-left"){
+            dirX = -1;
+          } else if (events[i].type === "move-right"){
+            dirX = 1;
+          }
+
+          const collision = checkCollision(tetrimino, orientation, grid, {
+            moveX: dirX,
+            moveY: dirY,
+          });
+
+          if (!collision) {
+            tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
+          } else if (dirY === 1 && coordinates.y < 20) {
+            dispatch({ type: "game-over" })
+          } else if (dirY === 1) {
+            tetrimino.collisioned = true;    
+          }
+        }
+          
+        if(/^rotate/.test(events[i].type)){
+          let newOrientation = 0;
+          if (events[i].type === "rotate-clockwise"){
+            newOrientation =
+              orientation === shapes.length - 1 ? 0 : orientation + 1;
+          } else if (events[i].type === "rotate-counter-clockwise") {
+            newOrientation =
+            orientation === 0 ? shapes.length - 1 : orientation - 1;
+          }
+          if (!checkCollision(tetrimino, newOrientation, grid, {moveX: 0, moveY: 0})) {
+            tetrimino = updateTetrimino(tetrimino, 0, 0, newOrientation);
+          } else if (
+            !checkCollision(tetrimino, newOrientation, grid, {moveX: 1, moveY: 0})
+          ) {
+            tetrimino = updateTetrimino(tetrimino, 1, 0, newOrientation);
+          } else if (
+            !checkCollision(tetrimino, newOrientation, grid, {moveX: -1, moveY: 0})
+          ) {
+            tetrimino = updateTetrimino(tetrimino, -1, 0, newOrientation);
+          }
+        }
+          
+      }
+    }
+
     tetrimino.nextMove--;
 
     if (tetriminosBag.length === 1) {
@@ -44,54 +98,30 @@ const Tetris = () => {
     if (nextMove === 0){
       tetrimino.nextMove = updateFrequency;
 
-      const collision = checkCollision(tetrimino, orientation, grid, {
-            moveX: 0,
-            moveY: 1,
-      });
-    
-      if (!collision) {
-        tetrimino = updateTetrimino(tetrimino, 0, 1, orientation);
-      } else if(coordinates.y < 20) {
-        dispatch({ type: "game-over" })
-      } else {
-        tetrimino.collisioned = true;    
-      }
+      dispatch({ type: "move-down" });
     }
 
     if(!collisioned) {
-      const move = touches.find((x) => x.type === 'move');
-
       screen.grid = clearGrid(grid);
   
+      const move = touches.find((x) => x.type === 'move');
+
       if (move) {
         const dirX = move && move.delta.pageX > 0 ? 1 : -1;
-        const collision = checkCollision(tetrimino, orientation, grid, {
-          moveX: dirX,
-          moveY: 0,
-        });
-  
-        if (!collision) {
-          tetrimino = updateTetrimino(tetrimino, dirX, 0, orientation);
+        
+        if(dirX < 0) {
+          dispatch({ type: "move-left" });
+        } else {
+          dispatch({ type: "move-right" });
         }
       }
   
       const press = touches.find((x) => x.type === 'press');
   
       if (press) {
-        const newOrientation =
-          orientation === shapes.length - 1 ? 0 : orientation + 1;
-        if (!checkCollision(tetrimino, newOrientation, grid, {moveX: 0, moveY: 0})) {
-          tetrimino = updateTetrimino(tetrimino, 0, 0, newOrientation);
-        } else if (
-          !checkCollision(tetrimino, newOrientation, grid, {moveX: 1, moveY: 0})
-        ) {
-          tetrimino = updateTetrimino(tetrimino, 1, 0, newOrientation);
-        } else if (
-          !checkCollision(tetrimino, newOrientation, grid, {moveX: -1, moveY: 0})
-        ) {
-          tetrimino = updateTetrimino(tetrimino, -1, 0, newOrientation);
-        }
+        dispatch({ type: "rotate-clockwise" });
       }
+
       screen.grid = updateGrid(tetrimino, grid);
 
     } else {
@@ -140,7 +170,21 @@ const Tetris = () => {
         </GameEngine>
       </View>
       <View style={styles.bottomBar}>
-        <Text>BOTTOM BAR</Text>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "rotate-clockwise" })} }>
+          <AntDesign style={{transform: [{ rotateY: '180deg' }]}} name="back" size={50} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-left" })} }>
+          <Feather name="arrow-left" size={50} color="black" />
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <Feather name="arrow-down" size={50} color="black" />
+        </View>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-right" })} }>
+          <Feather name="arrow-right" size={50} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "rotate-counter-clockwise" })} }>
+          <AntDesign name="back" size={50} color="black" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -162,8 +206,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   bottomBar: {
-    backgroundColor: "yellow",
     height: 80,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: 'space-between',
+  },
+  buttonContainer: {
+    width: 50,
+    height: 50,
   }
 });
 
