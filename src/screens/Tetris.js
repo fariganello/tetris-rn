@@ -4,6 +4,7 @@ import { AntDesign, Feather } from '@expo/vector-icons';
 import {Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
+import Next from '../components/Next';
 import {
   checkCollision,
   clearGrid,
@@ -24,7 +25,8 @@ const Tetris = () => {
   const [running, setRunning] = useState(true);
   const [engine, setEngine] = useState(null);
   const [lines, setLines] = useState(0);
-
+  const [next, setNext] = useState(initialTetrimino[0]);
+console.log("DDDDDFFF", next)
   onEvent = (e) => {
     if (e.type === "game-over") {
         setRunning(false);
@@ -138,6 +140,7 @@ const Tetris = () => {
       tetrimino.collisioned = false;
       const newTetrimino = tetriminosBag.pop();
       tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 18, 0);
+      setNext(newTetrimino[0]);
     }
     
     return {
@@ -155,6 +158,7 @@ const Tetris = () => {
           <Text></Text>
         </View>
         <GameEngine 
+        style={styles.gameContainer}
         ref={(ref) => setEngine(ref)}
         systems={[ updateHandler ]}
         entities={{
@@ -173,6 +177,7 @@ const Tetris = () => {
         onEvent={onEvent}
         running={running}>
           <StatusBar hidden={true} />
+          <Next next={next} />
           <Lines linesCounter={lines ? lines : 0}/>
         </GameEngine>
       </View>
@@ -222,6 +227,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: 50,
     height: 50,
+  },
+  gameContainer: {
+    flex: 1,
   }
 });
 

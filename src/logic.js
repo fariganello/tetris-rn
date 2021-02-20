@@ -171,9 +171,3 @@ export const resetTetrimino = (tetrimino, shapes, x, y, orientation) => {
     orientation,
   };
 };
-
-// export const handleMove = (setPiece, {moveX, moveY}) => {
-//   setPiece((prevPiece) =>
-//     updateTetrimino(prevPiece, moveX, moveY, prevPiece.orientation),
-//   );
-// };
