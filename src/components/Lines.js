@@ -12,12 +12,12 @@ const Lines = ({linesCounter}) => {
 
 const styles = StyleSheet.create({
   linesCounter: {
+    position: "absolute",
     right: 0,
-    top: 450,
+    bottom: 0,
     height: 50,
     width: 80,
     alignSelf: 'flex-end',
-    justifyContent: 'flex-end',
     flexDirection: "column",
     alignItems: 'center',
   },
