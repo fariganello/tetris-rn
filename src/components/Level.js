@@ -1,30 +1,30 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-const Level = ({level}) => {
-    return (
-        <View style={styles.linesCounter}>
-            <Text style={styles.title}>LEVEL</Text>
-            <Text>{level}</Text>
-        </View>
-    )
-}
+const Level = ({ level }) => {
+  return (
+    <View style={styles.linesCounter}>
+      <Text style={styles.title}>LEVEL</Text>
+      <Text>{level}</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   linesCounter: {
-    position: "absolute",
+    position: 'absolute',
     right: 0,
     bottom: 50,
     height: 50,
     width: 80,
     alignSelf: 'flex-end',
-    flexDirection: "column",
+    flexDirection: 'column',
     alignItems: 'center',
   },
   title: {
     fontSize: 16,
-    fontWeight: "bold",
-  }
+    fontWeight: 'bold',
+  },
 });
 
 export default Level;

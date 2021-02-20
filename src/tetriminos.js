@@ -1,4 +1,12 @@
-export const colors = ["cyan", "yellow", "purple", "green", "red", "blue", "orange"]
+export const colors = [
+  'cyan',
+  'yellow',
+  'purple',
+  'green',
+  'red',
+  'blue',
+  'orange',
+];
 
 export const tetriminos = {
   I: {

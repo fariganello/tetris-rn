@@ -1,36 +1,37 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {colors} from '../tetriminos';
+import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../tetriminos';
 
-const Next = ({next}) => {
-    return (
-        <View style={styles.nextContainer}>
-            <Text style={styles.title}>NEXT</Text>
-            {next && next.map((row, rowIndex) => {
-                return (
-                    <View style={styles.row} key={rowIndex} testID="next-row">
-                    {row.map((cell, cellIndex) => (
-                        <View
-                            style={[
-                            styles.cell,
-                            cell
-                                ? {backgroundColor: colors[cell - 1]}
-                                : {backgroundColor: 'white'},
-                            ]}
-                            key={cellIndex}
-                            testID="next-cell"
-                        />
-                    ))}
-                </View>
-                );
-            })}
-        </View>
-    )
-}
+const Next = ({ next }) => {
+  return (
+    <View style={styles.nextContainer}>
+      <Text style={styles.title}>NEXT</Text>
+      {next &&
+        next.map((row, rowIndex) => {
+          return (
+            <View style={styles.row} key={rowIndex} testID="next-row">
+              {row.map((cell, cellIndex) => (
+                <View
+                  style={[
+                    styles.cell,
+                    cell
+                      ? { backgroundColor: colors[cell - 1] }
+                      : { backgroundColor: 'white' },
+                  ]}
+                  key={cellIndex}
+                  testID="next-cell"
+                />
+              ))}
+            </View>
+          );
+        })}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   nextContainer: {
-    position: "absolute",
+    position: 'absolute',
     right: 0,
     top: 113,
     height: 80,
@@ -51,9 +52,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 5,
-  }
+  },
 });
 
 export default Next;

@@ -1,38 +1,39 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {colors} from '../tetriminos';
+import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../tetriminos';
 
-const Hold = ({hold}) => {
-    const shape = hold[0];
+const Hold = ({ hold }) => {
+  const shape = hold[0];
 
-    return (
-        <View style={styles.holdContainer}>
-            <Text style={styles.title}>HOLD</Text>
-            {shape && shape.map((row, rowIndex) => {
-                return (
-                    <View style={styles.row} key={rowIndex} testID="hold-row">
-                    {row.map((cell, cellIndex) => (
-                        <View
-                            style={[
-                            styles.cell,
-                            cell
-                                ? {backgroundColor: colors[cell - 1]}
-                                : {backgroundColor: 'white'},
-                            ]}
-                            key={cellIndex}
-                            testID="hold-cell"
-                        />
-                    ))}
-                </View>
-                );
-            })}
-        </View>
-    )
-}
+  return (
+    <View style={styles.holdContainer}>
+      <Text style={styles.title}>HOLD</Text>
+      {shape &&
+        shape.map((row, rowIndex) => {
+          return (
+            <View style={styles.row} key={rowIndex} testID="hold-row">
+              {row.map((cell, cellIndex) => (
+                <View
+                  style={[
+                    styles.cell,
+                    cell
+                      ? { backgroundColor: colors[cell - 1] }
+                      : { backgroundColor: 'white' },
+                  ]}
+                  key={cellIndex}
+                  testID="hold-cell"
+                />
+              ))}
+            </View>
+          );
+        })}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   holdContainer: {
-    position: "absolute",
+    position: 'absolute',
     left: -80,
     top: 113,
     height: 80,
@@ -53,9 +54,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 5,
-  }
+  },
 });
 
 export default Hold;
