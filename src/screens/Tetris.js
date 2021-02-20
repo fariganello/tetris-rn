@@ -49,6 +49,7 @@ const Tetris = () => {
   const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
   const [hold, setHold] = useState([]);
   const [holdPosible, setHoldPosible] = useState(true);
+  const [keepMoving, setKeepMoving] = useState(false);
 
   const onEvent = (e) => {
     if (e.type === 'game-over') {
@@ -75,12 +76,15 @@ const Tetris = () => {
         let dirY = 0;
 
         if (/^move/.test(events[i].type)) {
+          let nextEvent = {};
           if (events[i].type === 'move-down') {
             dirY = 1;
           } else if (events[i].type === 'move-left') {
             dirX = -1;
+            nextEvent = { type: 'move-left' };
           } else if (events[i].type === 'move-right') {
             dirX = 1;
+            nextEvent = { type: 'move-right' };
           }
 
           const collision = checkCollision(tetrimino, orientation, grid, {
@@ -94,6 +98,9 @@ const Tetris = () => {
               const newScore = calculateScore('softDrop', level, 1);
               game.score = game.score + newScore;
               setScore(game.score);
+            }
+            if (keepMoving) {
+              dispatch(nextEvent);
             }
           } else if (dirY === 1 && coordinates.y < 19) {
             dispatch({ type: 'game-over' });
@@ -300,8 +307,12 @@ const Tetris = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonContainer}
-          onPress={() => {
+          onPressIn={() => {
+            setKeepMoving(true);
             engine.dispatch({ type: 'move-left' });
+          }}
+          onPressOut={() => {
+            setKeepMoving(false);
           }}
         >
           <Feather name="arrow-left" size={50} color="black" />
@@ -319,8 +330,12 @@ const Tetris = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonContainer}
-          onPress={() => {
+          onPressIn={() => {
+            setKeepMoving(true);
             engine.dispatch({ type: 'move-right' });
+          }}
+          onPressOut={() => {
+            setKeepMoving(false);
           }}
         >
           <Feather name="arrow-right" size={50} color="black" />
