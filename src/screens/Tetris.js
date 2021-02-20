@@ -149,7 +149,8 @@ const Tetris = () => {
     } else {
       screen.grid = mergePiece(tetrimino, grid);
       const clearedLines = clearLines(screen);
-      setLines(lines + clearedLines);
+      lines = lines + clearedLines;
+      setLines(lines);
       tetrimino.collisioned = false;
       const newTetrimino = tetriminosBag.pop();
       tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 17, 0);
