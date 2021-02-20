@@ -4,6 +4,7 @@ import { AntDesign, Feather } from '@expo/vector-icons';
 import {Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
+import Level from '../components/Level';
 import Next from '../components/Next';
 import Hold from '../components/Hold';
 import HoldButton from '../components/HoldButton';
@@ -18,6 +19,7 @@ import {
   updateTetrimino,
   updateGrid,
 } from '../logic';
+import {LINES_TO_LEVELUP, SPEED_CHANGE, START_POSITION_X, START_POSITION_Y, START_UPDATE_FREQUENCY} from '../constants';
 
 const Tetris = () => {
   const initialBag = generateTetriminosBag();
@@ -27,6 +29,7 @@ const Tetris = () => {
   const [running, setRunning] = useState(true);
   const [engine, setEngine] = useState(null);
   const [lines, setLines] = useState(0);
+  const [level, setLevel] = useState(1);
   const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
   const [hold, setHold] = useState([]);
   const [holdPosible, setHoldPosible] = useState(true);
@@ -38,8 +41,9 @@ const Tetris = () => {
     }
   } 
   const updateHandler = (entities, {touches, dispatch, events}) => {
-    let {screen, tetrimino, tetriminosBag, lines} = entities;
+    let {screen, tetrimino, tetriminosBag, game} = entities;
     const {grid} = screen;
+    const {lines, level} = game;
     const {shapes, orientation, coordinates, collisioned, nextMove, updateFrequency} = tetrimino;
     
     if (events.length){
@@ -104,7 +108,7 @@ const Tetris = () => {
             const holdTetrimino = hold;
             setHold(tetrimino.shapes);
             const newTetrimino = holdTetrimino.length ? holdTetrimino : tetriminosBag.pop();
-            tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 17, 0);
+            tetrimino = resetTetrimino(tetrimino, newTetrimino, START_POSITION_X, START_POSITION_Y, 0);
             setHoldPosible(false);
           }
         }
@@ -117,7 +121,7 @@ const Tetris = () => {
       tetriminosBag = [...generateTetriminosBag(),...tetriminosBag];
     }
 
-    if (nextMove === 0){
+    if (nextMove <= 0){
       tetrimino.nextMove = updateFrequency;
 
       dispatch({ type: "move-down" });
@@ -149,19 +153,28 @@ const Tetris = () => {
     } else {
       screen.grid = mergePiece(tetrimino, grid);
       const clearedLines = clearLines(screen);
-      setLines(lines + clearedLines);
+      game.lines = lines + clearedLines;
+      setLines(game.lines);
+           
+      const newLevel = Math.ceil((game.lines + 1) / LINES_TO_LEVELUP);
+      if(newLevel !== game.level) {
+        game.level = newLevel;
+        setLevel(game.level);
+        tetrimino.updateFrequency = START_UPDATE_FREQUENCY - (SPEED_CHANGE * game.level); 
+      }
+      
       tetrimino.collisioned = false;
       const newTetrimino = tetriminosBag.pop();
-      tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 17, 0);
+      tetrimino = resetTetrimino(tetrimino, newTetrimino, START_POSITION_X, START_POSITION_Y, 0);
       setNext(tetriminosBag[tetriminosBag.length - 1][0]);
       setHoldPosible(true);
     }
-    
+
     return {
       screen,
       tetrimino,
       tetriminosBag,
-      lines,
+      game,
       hold,
     };
   };
@@ -178,13 +191,13 @@ const Tetris = () => {
           tetrimino: { 
             shapes: initialTetrimino,
             orientation: 0,
-            coordinates: {x: 4, y: 17},
+            coordinates: {x: START_POSITION_X, y: START_POSITION_Y},
             collisioned: false,
             nextMove: 10,
-            updateFrequency: 10,
+            updateFrequency: START_UPDATE_FREQUENCY,
           },
           tetriminosBag: initialBag,
-          lines: 0,
+          game: {lines: 0, level: 1},
           screen: {grid: initialGrid, renderer: <Grid/>},
         }}
         onEvent={onEvent}
@@ -192,6 +205,7 @@ const Tetris = () => {
           <StatusBar hidden={true} />
           <Hold hold={hold} />
           <Next next={next} />
+          <Level level={level ? level : 0}/>
           <Lines linesCounter={lines ? lines : 0}/>
         </GameEngine>
       </View>
