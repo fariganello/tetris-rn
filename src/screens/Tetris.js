@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {GameEngine, dispatch } from 'react-native-game-engine';
-import {Alert, StatusBar, StyleSheet, Text, View} from "react-native";
+import { AntDesign, Feather } from '@expo/vector-icons'; 
+import {Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
 import {
@@ -53,18 +54,25 @@ const Tetris = () => {
             moveX: dirX,
             moveY: dirY,
           });
+
           if (!collision) {
             tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
-          } else if (coordinates.y < 20) {
+          } else if (dirY === 1 && coordinates.y < 20) {
             dispatch({ type: "game-over" })
           } else if (dirY === 1) {
             tetrimino.collisioned = true;    
           }
         }
           
-        if (events[i].type === "rotation"){
-          const newOrientation =
-            orientation === shapes.length - 1 ? 0 : orientation + 1;
+        if(/^rotate/.test(events[i].type)){
+          let newOrientation = 0;
+          if (events[i].type === "rotate-clockwise"){
+            newOrientation =
+              orientation === shapes.length - 1 ? 0 : orientation + 1;
+          } else if (events[i].type === "rotate-counter-clockwise") {
+            newOrientation =
+            orientation === 0 ? shapes.length - 1 : orientation - 1;
+          }
           if (!checkCollision(tetrimino, newOrientation, grid, {moveX: 0, moveY: 0})) {
             tetrimino = updateTetrimino(tetrimino, 0, 0, newOrientation);
           } else if (
@@ -111,7 +119,7 @@ const Tetris = () => {
       const press = touches.find((x) => x.type === 'press');
   
       if (press) {
-        dispatch({ type: "rotation" });
+        dispatch({ type: "rotate-clockwise" });
       }
 
       screen.grid = updateGrid(tetrimino, grid);
@@ -162,7 +170,21 @@ const Tetris = () => {
         </GameEngine>
       </View>
       <View style={styles.bottomBar}>
-        <Text>BOTTOM BAR</Text>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "rotate-clockwise" })} }>
+          <AntDesign style={{transform: [{ rotateY: '180deg' }]}} name="back" size={50} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-left" })} }>
+          <Feather name="arrow-left" size={50} color="black" />
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <Feather name="arrow-down" size={50} color="black" />
+        </View>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "move-right" })} }>
+          <Feather name="arrow-right" size={50} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => { engine.dispatch({ type: "rotate-counter-clockwise" })} }>
+          <AntDesign name="back" size={50} color="black" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -184,8 +206,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   bottomBar: {
-    backgroundColor: "yellow",
     height: 80,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: 'space-between',
+  },
+  buttonContainer: {
+    width: 50,
+    height: 50,
   }
 });
 
