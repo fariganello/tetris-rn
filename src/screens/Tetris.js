@@ -5,6 +5,8 @@ import {Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
 import Next from '../components/Next';
+import Hold from '../components/Hold';
+import HoldButton from '../components/HoldButton';
 import {
   checkCollision,
   clearGrid,
@@ -25,8 +27,10 @@ const Tetris = () => {
   const [running, setRunning] = useState(true);
   const [engine, setEngine] = useState(null);
   const [lines, setLines] = useState(0);
-  const [next, setNext] = useState(initialTetrimino[0]);
-console.log("DDDDDFFF", next)
+  const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
+  const [hold, setHold] = useState([]);
+  const [holdPosible, setHoldPosible] = useState(true);
+
   onEvent = (e) => {
     if (e.type === "game-over") {
         setRunning(false);
@@ -59,7 +63,7 @@ console.log("DDDDDFFF", next)
 
           if (!collision) {
             tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
-          } else if (dirY === 1 && coordinates.y < 20) {
+          } else if (dirY === 1 && coordinates.y < 19) {
             dispatch({ type: "game-over" })
           } else if (dirY === 1) {
             tetrimino.collisioned = true;    
@@ -94,10 +98,19 @@ console.log("DDDDDFFF", next)
           }
           tetrimino.collisioned = true;
         }
+
+        if (events[i].type === "hold"){
+          if(holdPosible) {
+            const holdTetrimino = hold;
+            setHold(tetrimino.shapes);
+            const newTetrimino = holdTetrimino.length ? holdTetrimino : tetriminosBag.pop();
+            tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 17, 0);
+            setHoldPosible(false);
+          }
+        }
           
       }
     }
-
     tetrimino.nextMove--;
 
     if (tetriminosBag.length === 1) {
@@ -139,8 +152,9 @@ console.log("DDDDDFFF", next)
       setLines(lines + clearedLines);
       tetrimino.collisioned = false;
       const newTetrimino = tetriminosBag.pop();
-      tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 18, 0);
-      setNext(newTetrimino[0]);
+      tetrimino = resetTetrimino(tetrimino, newTetrimino, 4, 17, 0);
+      setNext(tetriminosBag[tetriminosBag.length - 1][0]);
+      setHoldPosible(true);
     }
     
     return {
@@ -148,15 +162,14 @@ console.log("DDDDDFFF", next)
       tetrimino,
       tetriminosBag,
       lines,
+      hold,
     };
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
-        <View style={styles.sidebar}>
-          <Text></Text>
-        </View>
+        <HoldButton title={"HOLD"} onPress={() => { engine.dispatch({ type: "hold" })} }/>
         <GameEngine 
         style={styles.gameContainer}
         ref={(ref) => setEngine(ref)}
@@ -165,7 +178,7 @@ console.log("DDDDDFFF", next)
           tetrimino: { 
             shapes: initialTetrimino,
             orientation: 0,
-            coordinates: {x: 4, y: 18},
+            coordinates: {x: 4, y: 17},
             collisioned: false,
             nextMove: 10,
             updateFrequency: 10,
@@ -177,6 +190,7 @@ console.log("DDDDDFFF", next)
         onEvent={onEvent}
         running={running}>
           <StatusBar hidden={true} />
+          <Hold hold={hold} />
           <Next next={next} />
           <Lines linesCounter={lines ? lines : 0}/>
         </GameEngine>
@@ -207,10 +221,6 @@ const styles = StyleSheet.create({
     flex:1,
     flexDirection: "column",
   },
-  sidebar: {
-    width: 80,
-    height: 400,
-  },
   topContainer: {
     flex: 1,
     flexDirection: "row",
@@ -230,7 +240,8 @@ const styles = StyleSheet.create({
   },
   gameContainer: {
     flex: 1,
-  }
+    marginLeft: 80,
+  },
 });
 
 export default Tetris;
