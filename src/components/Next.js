@@ -32,7 +32,7 @@ const Next = ({ next }) => {
 const styles = StyleSheet.create({
   nextContainer: {
     position: 'absolute',
-    right: 0,
+    right: -80,
     bottom: 320,
     height: 80,
     width: 80,

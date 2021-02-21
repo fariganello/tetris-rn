@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { GameEngine } from 'react-native-game-engine';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import {
-  Alert,
   StatusBar,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
+  YellowBox,
 } from 'react-native';
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
@@ -303,6 +304,9 @@ const Tetris = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.gameTitleContainer}>
+        <Text style={styles.gameTitle}>TETRIS</Text>
+      </View>
       <View style={styles.topContainer}>
         <HoldButton
           title={'HOLD'}
@@ -425,13 +429,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   topContainer: {
     flex: 1,
+    maxHeight: 550,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+  },
+  gameTitleContainer: {
+    flex: 1,
+    maxHeight: 100,
+    justifyContent: 'center',
+  },
+  gameTitle: {
+    fontSize: 40,
+    fontWeight: 'bold',
   },
   bottomBar: {
+    flex: 0.12,
     height: 80,
     flexDirection: 'row',
     alignItems: 'center',
@@ -440,12 +456,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   buttonContainer: {
+    flex: 1,
     width: 50,
     height: 50,
   },
   gameContainer: {
-    flex: 1,
     marginLeft: 80,
+    marginRight: 80,
   },
   pauseButton: {
     position: 'absolute',
@@ -455,7 +472,7 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 export default Tetris;

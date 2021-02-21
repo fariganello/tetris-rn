@@ -13,7 +13,7 @@ const Score = ({ score }) => {
 const styles = StyleSheet.create({
   score: {
     position: 'absolute',
-    right: 0,
+    right: -80,
     bottom: 100,
     height: 50,
     width: 80,
