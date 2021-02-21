@@ -14,8 +14,10 @@ import Level from '../components/Level';
 import Score from '../components/Score';
 import Next from '../components/Next';
 import Hold from '../components/Hold';
+import GameOverModal from '../components/GameOverModal';
 import HoldButton from '../components/HoldButton';
 import {
+  applyRotation,
   calculateScore,
   checkCollision,
   clearGrid,
@@ -24,6 +26,8 @@ import {
   generateTetriminosBag,
   mergePiece,
   resetTetrimino,
+  restartGame,
+  resolveCollision,
   updateTetrimino,
   updateGrid,
 } from '../logic';
@@ -49,14 +53,20 @@ const Tetris = () => {
   const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
   const [hold, setHold] = useState([]);
   const [holdPosible, setHoldPosible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       setRunning(false);
-      Alert.alert('Game Over');
+      setModalVisible(true);
     }
   };
+
   const updateHandler = (entities, { touches, dispatch, events }) => {
+    if (events.find((event) => event.type === 'restart-game')) {
+      entities = restartGame(setHold, setNext, setLines, setLevel, setScore);
+    }
+
     let { screen, tetrimino, tetriminosBag, game } = entities;
     const { grid } = screen;
     const { lines, level, score } = game;
@@ -67,72 +77,114 @@ const Tetris = () => {
       collisioned,
       nextMove,
       updateFrequency,
+      keepLeft,
+      keepRight,
     } = tetrimino;
+
+    let dirX = 0;
+    let dirY = 0;
+
+    if (events.find((event) => event.type === 'move-left-stop')) {
+      tetrimino.keepLeft = false;
+    }
+    if (events.find((event) => event.type === 'move-right-stop')) {
+      tetrimino.keepRight = false;
+    }
+
+    if (
+      tetrimino.keepLeft &&
+      events.find((event) => event.type === 'move-continued-left')
+    ) {
+      dirX = -1;
+      dirY = 0;
+
+      tetrimino = resolveCollision(
+        tetrimino,
+        grid,
+        game,
+        dirX,
+        dirY,
+        setScore,
+        dispatch,
+        { type: 'move-continued-left' }
+      );
+    } else if (
+      tetrimino.keepRight &&
+      events.find((event) => event.type === 'move-continued-right')
+    ) {
+      dirX = 1;
+      dirY = 0;
+
+      tetrimino = resolveCollision(
+        tetrimino,
+        grid,
+        game,
+        dirX,
+        dirY,
+        setScore,
+        dispatch,
+        { type: 'move-continued-right' }
+      );
+    }
+
+    if (events.find((event) => event.type === 'move-left')) {
+      dirX = -1;
+      dirY = 0;
+      if (!events.some((event) => event.type === 'move-left-stop')) {
+        tetrimino.keepLeft = true;
+      }
+
+      tetrimino = resolveCollision(
+        tetrimino,
+        grid,
+        game,
+        dirX,
+        dirY,
+        setScore,
+        dispatch,
+        { type: 'move-continued-left' },
+        'keepLeft'
+      );
+    } else if (events.find((event) => event.type === 'move-right')) {
+      dirX = 1;
+      dirY = 0;
+      if (!events.some((event) => event.type === 'move-right-stop')) {
+        tetrimino.keepRight = true;
+      }
+
+      tetrimino = resolveCollision(
+        tetrimino,
+        grid,
+        game,
+        dirX,
+        dirY,
+        setScore,
+        dispatch,
+        { type: 'move-continued-right' },
+        'keepRight'
+      );
+    }
+
+    if (events.find((event) => event.type === 'move-down')) {
+      dirX = 0;
+      dirY = 1;
+
+      tetrimino = resolveCollision(
+        tetrimino,
+        grid,
+        game,
+        dirX,
+        dirY,
+        setScore,
+        dispatch,
+        { type: 'game-over' }
+      );
+    }
 
     if (events.length) {
       for (let i = 0; i < events.length; i++) {
-        let dirX = 0;
-        let dirY = 0;
-
-        if (/^move/.test(events[i].type)) {
-          if (events[i].type === 'move-down') {
-            dirY = 1;
-          } else if (events[i].type === 'move-left') {
-            dirX = -1;
-          } else if (events[i].type === 'move-right') {
-            dirX = 1;
-          }
-
-          const collision = checkCollision(tetrimino, orientation, grid, {
-            moveX: dirX,
-            moveY: dirY,
-          });
-
-          if (!collision) {
-            tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
-            if (dirY) {
-              const newScore = calculateScore('softDrop', level, 1);
-              game.score = game.score + newScore;
-              setScore(game.score);
-            }
-          } else if (dirY === 1 && coordinates.y < 19) {
-            dispatch({ type: 'game-over' });
-          } else if (dirY === 1) {
-            tetrimino.collisioned = true;
-          }
-        }
-
         if (/^rotate/.test(events[i].type)) {
-          let newOrientation = 0;
-          if (events[i].type === 'rotate-clockwise') {
-            newOrientation =
-              orientation === shapes.length - 1 ? 0 : orientation + 1;
-          } else if (events[i].type === 'rotate-counter-clockwise') {
-            newOrientation =
-              orientation === 0 ? shapes.length - 1 : orientation - 1;
-          }
-          if (
-            !checkCollision(tetrimino, newOrientation, grid, {
-              moveX: 0,
-              moveY: 0,
-            })
-          ) {
-            tetrimino = updateTetrimino(tetrimino, 0, 0, newOrientation);
-          } else if (
-            !checkCollision(tetrimino, newOrientation, grid, {
-              moveX: 1,
-              moveY: 0,
-            })
-          ) {
-            tetrimino = updateTetrimino(tetrimino, 1, 0, newOrientation);
-          } else if (
-            !checkCollision(tetrimino, newOrientation, grid, {
-              moveX: -1,
-              moveY: 0,
-            })
-          ) {
-            tetrimino = updateTetrimino(tetrimino, -1, 0, newOrientation);
-          }
+          tetrimino = applyRotation(tetrimino, grid, events[i].type);
         }
 
         if (events[i].type === 'hard-drop') {
@@ -186,17 +238,17 @@ const Tetris = () => {
     if (!collisioned) {
       screen.grid = clearGrid(grid);
 
-      const move = touches.find((x) => x.type === 'move');
+      // const move = touches.find((x) => x.type === 'move');
 
-      if (move) {
-        const dirX = move && move.delta.pageX > 0 ? 1 : -1;
+      // if (move) {
+      //   const dirX = move && move.delta.pageX > 0 ? 1 : -1;
 
-        if (dirX < 0) {
-          dispatch({ type: 'move-left' });
-        } else {
-          dispatch({ type: 'move-right' });
-        }
-      }
+      //   if (dirX < 0) {
+      //     dispatch({ type: 'move-left' });
+      //   } else {
+      //     dispatch({ type: 'move-right' });
+      //   }
+      // }
 
       const press = touches.find((x) => x.type === 'press');
 
@@ -268,6 +320,8 @@ const Tetris = () => {
               collisioned: false,
               nextMove: 10,
               updateFrequency: START_UPDATE_FREQUENCY,
+              keepLeft: false,
+              keepRight: false,
             },
             tetriminosBag: initialBag,
             game: { lines: 0, level: 1, score: 0 },
@@ -300,8 +354,11 @@ const Tetris = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonContainer}
-          onPress={() => {
+          onPressIn={() => {
             engine.dispatch({ type: 'move-left' });
+          }}
+          onPressOut={() => {
+            engine.dispatch({ type: 'move-left-stop' });
           }}
         >
           <Feather name="arrow-left" size={50} color="black" />
@@ -319,8 +376,11 @@ const Tetris = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonContainer}
-          onPress={() => {
+          onPressIn={() => {
             engine.dispatch({ type: 'move-right' });
+          }}
+          onPressOut={() => {
+            engine.dispatch({ type: 'move-right-stop' });
           }}
         >
           <Feather name="arrow-right" size={50} color="black" />
@@ -333,6 +393,12 @@ const Tetris = () => {
         >
           <AntDesign name="back" size={50} color="black" />
         </TouchableOpacity>
+        <GameOverModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          setRunning={setRunning}
+          engine={engine}
+        />
       </View>
     </View>
   );

@@ -1,4 +1,11 @@
+import React from 'react';
 import { tetriminos } from './tetriminos';
+import Grid from './components/Grid';
+import {
+  START_POSITION_X,
+  START_POSITION_Y,
+  START_UPDATE_FREQUENCY,
+} from './constants';
 
 //GENERATE PIECES
 
@@ -122,6 +129,36 @@ export const mergePiece = (tetrimino, grid) => {
   return newGrid;
 };
 
+// GAME
+
+export const restartGame = (setHold, setNext, setLines, setLevel, setScore) => {
+  const initialBag = generateTetriminosBag();
+  const initialTetrimino = initialBag.pop();
+  const initialGrid = createGrid();
+
+  setHold([]);
+  setNext(initialBag[initialBag.length - 1][0]);
+  setLines(0);
+  setLevel(1);
+  setScore(0);
+
+  return {
+    screen: { grid: initialGrid, renderer: <Grid /> },
+    tetriminosBag: initialBag,
+    tetrimino: {
+      shapes: initialTetrimino,
+      orientation: 0,
+      coordinates: { x: START_POSITION_X, y: START_POSITION_Y },
+      collisioned: false,
+      nextMove: 10,
+      updateFrequency: START_UPDATE_FREQUENCY,
+      keepLeft: false,
+      keepRight: false,
+    },
+    game: { lines: 0, level: 1, score: 0 },
+  };
+};
+
 //COLLISIONS
 
 export const checkCollision = (
@@ -150,6 +187,43 @@ export const checkCollision = (
   return false;
 };
 
+export const resolveCollision = (
+  tetrimino,
+  grid,
+  game,
+  dirX,
+  dirY,
+  setScore,
+  dispatch,
+  event,
+  keepMovingDirection
+) => {
+  const { coordinates, orientation } = tetrimino;
+
+  const collision = checkCollision(tetrimino, orientation, grid, {
+    moveX: dirX,
+    moveY: dirY,
+  });
+
+  if (!collision) {
+    tetrimino = resolveMove(
+      tetrimino,
+      game,
+      dirX,
+      dirY,
+      setScore,
+      dispatch,
+      event,
+      keepMovingDirection
+    );
+  } else if (dirY === 1 && coordinates.y < 19) {
+    dispatch(event);
+  } else if (dirY === 1) {
+    tetrimino.collisioned = true;
+  }
+  return tetrimino;
+};
+
 // PIECE MOVEMENT
 export const updateTetrimino = (tetrimino, moveX, moveY, orientation) => {
   return {
@@ -172,6 +246,93 @@ export const resetTetrimino = (tetrimino, shapes, x, y, orientation) => {
     },
     orientation,
   };
+};
+
+const dispatchEvent = (keepMoving, dispatch, event) => {
+  if (keepMoving) {
+    dispatch(event);
+  }
+};
+
+export const resolveMove = (
+  tetrimino,
+  game,
+  dirX,
+  dirY,
+  setScore,
+  dispatch,
+  event,
+  keepMovingDirection
+) => {
+  const { orientation } = tetrimino;
+  const { level, score } = game;
+
+  tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
+
+  if (dirY) {
+    const newScore = calculateScore('softDrop', level, 1);
+    game.score = score + newScore;
+    setScore(game.score);
+  }
+
+  if (dirX) {
+    if (keepMovingDirection && tetrimino[keepMovingDirection]) {
+      setTimeout(
+        dispatchEvent,
+        800,
+        tetrimino[keepMovingDirection],
+        dispatch,
+        event
+      );
+    } else {
+      dispatch(event);
+    }
+  }
+
+  tetrimino.game = game;
+  return tetrimino;
+};
+
+export const applyRotation = (tetrimino, grid, type) => {
+  const { shapes, orientation } = tetrimino;
+  let newOrientation = 0;
+  let dirX = 0;
+  let dirY = 0;
+  let collision = true;
+
+  if (type === 'rotate-clockwise') {
+    newOrientation = orientation === shapes.length - 1 ? 0 : orientation + 1;
+  } else if (type === 'rotate-counter-clockwise') {
+    newOrientation = orientation === 0 ? shapes.length - 1 : orientation - 1;
+  }
+  if (
+    !checkCollision(tetrimino, newOrientation, grid, {
+      moveX: 0,
+      moveY: 0,
+    })
+  ) {
+    collision = false;
+  } else if (
+    !checkCollision(tetrimino, newOrientation, grid, {
+      moveX: 1,
+      moveY: 0,
+    })
+  ) {
+    dirX = 1;
+    collision = false;
+  } else if (
+    !checkCollision(tetrimino, newOrientation, grid, {
+      moveX: -1,
+      moveY: 0,
+    })
+  ) {
+    dirX = -1;
+    collision = false;
+  }
+  if (!collision) {
+    tetrimino = updateTetrimino(tetrimino, dirX, dirY, newOrientation);
+  }
+  return tetrimino;
 };
 
 // SCORE
