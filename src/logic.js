@@ -1,4 +1,11 @@
+import React from 'react';
 import { tetriminos } from './tetriminos';
+import Grid from './components/Grid';
+import {
+  START_POSITION_X,
+  START_POSITION_Y,
+  START_UPDATE_FREQUENCY,
+} from './constants';
 
 //GENERATE PIECES
 
@@ -122,6 +129,36 @@ export const mergePiece = (tetrimino, grid) => {
   return newGrid;
 };
 
+// GAME
+
+export const restartGame = (setHold, setNext, setLines, setLevel, setScore) => {
+  const initialBag = generateTetriminosBag();
+  const initialTetrimino = initialBag.pop();
+  const initialGrid = createGrid();
+
+  setHold([]);
+  setNext(initialBag[initialBag.length - 1][0]);
+  setLines(0);
+  setLevel(1);
+  setScore(0);
+
+  return {
+    screen: { grid: initialGrid, renderer: <Grid /> },
+    tetriminosBag: initialBag,
+    tetrimino: {
+      shapes: initialTetrimino,
+      orientation: 0,
+      coordinates: { x: START_POSITION_X, y: START_POSITION_Y },
+      collisioned: false,
+      nextMove: 10,
+      updateFrequency: START_UPDATE_FREQUENCY,
+      keepLeft: false,
+      keepRight: false,
+    },
+    game: { lines: 0, level: 1, score: 0 },
+  };
+};
+
 //COLLISIONS
 
 export const checkCollision = (
@@ -180,7 +217,7 @@ export const resolveCollision = (
       keepMovingDirection
     );
   } else if (dirY === 1 && coordinates.y < 19) {
-    dispatch({ type: 'game-over' });
+    dispatch(event);
   } else if (dirY === 1) {
     tetrimino.collisioned = true;
   }

@@ -14,6 +14,7 @@ import Level from '../components/Level';
 import Score from '../components/Score';
 import Next from '../components/Next';
 import Hold from '../components/Hold';
+import GameOverModal from '../components/GameOverModal';
 import HoldButton from '../components/HoldButton';
 import {
   applyRotation,
@@ -25,6 +26,7 @@ import {
   generateTetriminosBag,
   mergePiece,
   resetTetrimino,
+  restartGame,
   resolveCollision,
   updateTetrimino,
   updateGrid,
@@ -51,15 +53,20 @@ const Tetris = () => {
   const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
   const [hold, setHold] = useState([]);
   const [holdPosible, setHoldPosible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       setRunning(false);
-      Alert.alert('Game Over');
+      setModalVisible(true);
     }
   };
 
   const updateHandler = (entities, { touches, dispatch, events }) => {
+    if (events.find((event) => event.type === 'restart-game')) {
+      entities = restartGame(setHold, setNext, setLines, setLevel, setScore);
+    }
+
     let { screen, tetrimino, tetriminosBag, game } = entities;
     const { grid } = screen;
     const { lines, level, score } = game;
@@ -162,7 +169,16 @@ const Tetris = () => {
       dirX = 0;
       dirY = 1;
 
-      tetrimino = resolveCollision(tetrimino, grid, game, dirX, dirY, setScore);
+      tetrimino = resolveCollision(
+        tetrimino,
+        grid,
+        game,
+        dirX,
+        dirY,
+        setScore,
+        dispatch,
+        { type: 'game-over' }
+      );
     }
 
     if (events.length) {
@@ -377,6 +393,12 @@ const Tetris = () => {
         >
           <AntDesign name="back" size={50} color="black" />
         </TouchableOpacity>
+        <GameOverModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          setRunning={setRunning}
+          engine={engine}
+        />
       </View>
     </View>
   );
