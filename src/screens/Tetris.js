@@ -74,7 +74,6 @@ const Tetris = () => {
       keepRight,
     } = tetrimino;
 
-    let nextEvent = {};
     let dirX = 0;
     let dirY = 0;
 
@@ -91,7 +90,6 @@ const Tetris = () => {
     ) {
       dirX = -1;
       dirY = 0;
-      nextEvent = { type: 'move-continued-left' };
 
       tetrimino = resolveCollision(
         tetrimino,
@@ -101,7 +99,7 @@ const Tetris = () => {
         dirY,
         setScore,
         dispatch,
-        nextEvent
+        { type: 'move-continued-left' }
       );
     } else if (
       tetrimino.keepRight &&
@@ -109,7 +107,6 @@ const Tetris = () => {
     ) {
       dirX = 1;
       dirY = 0;
-      nextEvent = { type: 'move-continued-right' };
 
       tetrimino = resolveCollision(
         tetrimino,
@@ -119,7 +116,7 @@ const Tetris = () => {
         dirY,
         setScore,
         dispatch,
-        nextEvent
+        { type: 'move-continued-right' }
       );
     }
 
@@ -129,7 +126,6 @@ const Tetris = () => {
       if (!events.some((event) => event.type === 'move-left-stop')) {
         tetrimino.keepLeft = true;
       }
-      nextEvent = { type: 'move-continued-left' };
 
       tetrimino = resolveCollision(
         tetrimino,
@@ -139,7 +135,7 @@ const Tetris = () => {
         dirY,
         setScore,
         dispatch,
-        nextEvent,
+        { type: 'move-continued-left' },
         'keepLeft'
       );
     } else if (events.find((event) => event.type === 'move-right')) {
@@ -148,7 +144,6 @@ const Tetris = () => {
       if (!events.some((event) => event.type === 'move-right-stop')) {
         tetrimino.keepRight = true;
       }
-      nextEvent = { type: 'move-continued-right' };
 
       tetrimino = resolveCollision(
         tetrimino,
@@ -158,7 +153,7 @@ const Tetris = () => {
         dirY,
         setScore,
         dispatch,
-        nextEvent,
+        { type: 'move-continued-right' },
         'keepRight'
       );
     }
@@ -167,17 +162,7 @@ const Tetris = () => {
       dirX = 0;
       dirY = 1;
 
-      tetrimino = resolveCollision(
-        tetrimino,
-        grid,
-        game,
-        dirX,
-        dirY,
-        setScore,
-        dispatch,
-        nextEvent,
-        'keepLeft'
-      );
+      tetrimino = resolveCollision(tetrimino, grid, game, dirX, dirY, setScore);
     }
 
     if (events.length) {

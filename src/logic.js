@@ -242,7 +242,7 @@ export const resolveMove = (
     if (keepMovingDirection && tetrimino[keepMovingDirection]) {
       setTimeout(
         dispatchEvent,
-        1500,
+        800,
         tetrimino[keepMovingDirection],
         dispatch,
         event
