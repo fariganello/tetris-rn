@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   holdContainer: {
     position: 'absolute',
     left: -80,
-    top: 113,
+    bottom: 320,
     height: 80,
     width: 80,
     alignSelf: 'flex-end',

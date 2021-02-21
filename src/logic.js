@@ -150,6 +150,43 @@ export const checkCollision = (
   return false;
 };
 
+export const resolveCollision = (
+  tetrimino,
+  grid,
+  game,
+  dirX,
+  dirY,
+  setScore,
+  dispatch,
+  event,
+  keepMovingDirection
+) => {
+  const { coordinates, orientation } = tetrimino;
+
+  const collision = checkCollision(tetrimino, orientation, grid, {
+    moveX: dirX,
+    moveY: dirY,
+  });
+
+  if (!collision) {
+    tetrimino = resolveMove(
+      tetrimino,
+      game,
+      dirX,
+      dirY,
+      setScore,
+      dispatch,
+      event,
+      keepMovingDirection
+    );
+  } else if (dirY === 1 && coordinates.y < 19) {
+    dispatch({ type: 'game-over' });
+  } else if (dirY === 1) {
+    tetrimino.collisioned = true;
+  }
+  return tetrimino;
+};
+
 // PIECE MOVEMENT
 export const updateTetrimino = (tetrimino, moveX, moveY, orientation) => {
   return {
@@ -172,6 +209,93 @@ export const resetTetrimino = (tetrimino, shapes, x, y, orientation) => {
     },
     orientation,
   };
+};
+
+const dispatchEvent = (keepMoving, dispatch, event) => {
+  if (keepMoving) {
+    dispatch(event);
+  }
+};
+
+export const resolveMove = (
+  tetrimino,
+  game,
+  dirX,
+  dirY,
+  setScore,
+  dispatch,
+  event,
+  keepMovingDirection
+) => {
+  const { orientation } = tetrimino;
+  const { level, score } = game;
+
+  tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
+
+  if (dirY) {
+    const newScore = calculateScore('softDrop', level, 1);
+    game.score = score + newScore;
+    setScore(game.score);
+  }
+
+  if (dirX) {
+    if (keepMovingDirection && tetrimino[keepMovingDirection]) {
+      setTimeout(
+        dispatchEvent,
+        1500,
+        tetrimino[keepMovingDirection],
+        dispatch,
+        event
+      );
+    } else {
+      dispatch(event);
+    }
+  }
+
+  tetrimino.game = game;
+  return tetrimino;
+};
+
+export const applyRotation = (tetrimino, grid, type) => {
+  const { shapes, orientation } = tetrimino;
+  let newOrientation = 0;
+  let dirX = 0;
+  let dirY = 0;
+  let collision = true;
+
+  if (type === 'rotate-clockwise') {
+    newOrientation = orientation === shapes.length - 1 ? 0 : orientation + 1;
+  } else if (type === 'rotate-counter-clockwise') {
+    newOrientation = orientation === 0 ? shapes.length - 1 : orientation - 1;
+  }
+  if (
+    !checkCollision(tetrimino, newOrientation, grid, {
+      moveX: 0,
+      moveY: 0,
+    })
+  ) {
+    collision = false;
+  } else if (
+    !checkCollision(tetrimino, newOrientation, grid, {
+      moveX: 1,
+      moveY: 0,
+    })
+  ) {
+    dirX = 1;
+    collision = false;
+  } else if (
+    !checkCollision(tetrimino, newOrientation, grid, {
+      moveX: -1,
+      moveY: 0,
+    })
+  ) {
+    dirX = -1;
+    collision = false;
+  }
+  if (!collision) {
+    tetrimino = updateTetrimino(tetrimino, dirX, dirY, newOrientation);
+  }
+  return tetrimino;
 };
 
 // SCORE

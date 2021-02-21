@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   nextContainer: {
     position: 'absolute',
     right: 0,
-    top: 113,
+    bottom: 320,
     height: 80,
     width: 80,
     alignSelf: 'flex-end',
