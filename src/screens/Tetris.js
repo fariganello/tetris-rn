@@ -15,6 +15,7 @@ import Score from '../components/Score';
 import Next from '../components/Next';
 import Hold from '../components/Hold';
 import GameOverModal from '../components/GameOverModal';
+import PauseModal from '../components/PauseModal';
 import HoldButton from '../components/HoldButton';
 import {
   applyRotation,
@@ -53,12 +54,13 @@ const Tetris = () => {
   const [next, setNext] = useState(initialBag[initialBag.length - 1][0]);
   const [hold, setHold] = useState([]);
   const [holdPosible, setHoldPosible] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
+  const [pauseModalVisible, setPauseModalVisible] = useState(false);
 
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       setRunning(false);
-      setModalVisible(true);
+      setGameOverModalVisible(true);
     }
   };
 
@@ -308,6 +310,15 @@ const Tetris = () => {
             engine.dispatch({ type: 'hold' });
           }}
         />
+        <TouchableOpacity
+          style={styles.pauseButton}
+          onPress={() => {
+            setPauseModalVisible(true);
+            setRunning(false);
+          }}
+        >
+          <AntDesign name="pause" size={50} color="black" />
+        </TouchableOpacity>
         <GameEngine
           style={styles.gameContainer}
           ref={(ref) => setEngine(ref)}
@@ -394,10 +405,16 @@ const Tetris = () => {
           <AntDesign name="back" size={50} color="black" />
         </TouchableOpacity>
         <GameOverModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
+          gameOverModalVisible={gameOverModalVisible}
+          setGameOverModalVisible={setGameOverModalVisible}
           setRunning={setRunning}
           engine={engine}
+        />
+        <PauseModal
+          pauseModalVisible={pauseModalVisible}
+          setPauseModalVisible={setPauseModalVisible}
+          running={running}
+          setRunning={setRunning}
         />
       </View>
     </View>
@@ -430,6 +447,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 80,
   },
+  pauseButton: {
+    position: 'absolute',
+    left: 15,
+    bottom: 90,
+    height: 50,
+    width: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });
 
 export default Tetris;

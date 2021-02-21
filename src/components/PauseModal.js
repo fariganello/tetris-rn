@@ -1,42 +1,33 @@
 import React from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-const GameOverModal = ({
-  gameOverModalVisible,
-  setGameOverModalVisible,
+const PauseModal = ({
+  pauseModalVisible,
+  setPauseModalVisible,
+  running,
   setRunning,
-  engine,
 }) => {
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={gameOverModalVisible}
+      visible={pauseModalVisible}
       onRequestClose={() => {
-        setGameOverModalVisible(!gameOverModalVisible);
+        setPauseModalVisible(!pauseModalVisible);
       }}
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>GAME OVER!</Text>
-          <View style={styles.buttonWrapper}>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => {
-                setGameOverModalVisible(!gameOverModalVisible);
-                engine.dispatch({ type: 'restart-game' });
-                setRunning(true);
-              }}
-            >
-              <Text style={styles.textStyle}>RESTART</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              /*onPress={() => setGameOverModalVisible(!gameOverModalVisible)}*/
-            >
-              <Text style={styles.textStyle}>MENU</Text>
-            </Pressable>
-          </View>
+          <Text style={styles.modalTitle}>PAUSED</Text>
+          <Pressable
+            style={[styles.button, styles.buttonClose]}
+            onPress={() => {
+              setPauseModalVisible(!pauseModalVisible);
+              setRunning(!running);
+            }}
+          >
+            <Text style={styles.textStyle}>RESUME</Text>
+          </Pressable>
         </View>
       </View>
     </Modal>
@@ -65,11 +56,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  buttonWrapper: {
-    flexDirection: 'row',
-    width: 180,
-    justifyContent: 'space-between',
-  },
   button: {
     minWidth: 80,
     borderRadius: 20,
@@ -94,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GameOverModal;
+export default PauseModal;
