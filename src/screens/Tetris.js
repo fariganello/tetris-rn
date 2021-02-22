@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { GameEngine } from 'react-native-game-engine';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import {
+  Dimensions,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  YellowBox,
 } from 'react-native';
+import { Audio } from 'expo-av';
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
 import Level from '../components/Level';
@@ -34,13 +35,23 @@ import {
   updateGrid,
 } from '../logic';
 import {
+  BOTTOM_BAR_HEIGHT,
   LINES,
   LINES_TO_LEVELUP,
+  MAX_COLUMNS,
+  MAX_ROWS,
+  SIDEBAR_WIDTH,
   SPEED_CHANGE,
   START_POSITION_X,
   START_POSITION_Y,
   START_UPDATE_FREQUENCY,
 } from '../constants';
+
+const windowWidth = Dimensions.get('window').width;
+const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
+const gameHeight = cellWidth * MAX_ROWS;
+const titleContainerHeight =
+  Dimensions.get('window').height - gameHeight - BOTTOM_BAR_HEIGHT;
 
 const Tetris = () => {
   const initialBag = generateTetriminosBag();
@@ -57,6 +68,7 @@ const Tetris = () => {
   const [holdPosible, setHoldPosible] = useState(true);
   const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
   const [pauseModalVisible, setPauseModalVisible] = useState(false);
+  const [rotateSound, setRotateSound] = React.useState();
 
   const onEvent = (e) => {
     if (e.type === 'game-over') {
@@ -64,6 +76,41 @@ const Tetris = () => {
       setGameOverModalVisible(true);
     }
   };
+
+  const playRotateSound = async () => {
+    const rotateSound = new Audio.Sound();
+    Audio.setAudioModeAsync({
+      playThroughEarpieceAndroid: false,
+      shouldDuckAndroid: false,
+      staysActiveInBackground: true,
+    });
+    await rotateSound.loadAsync(require('../../assets/rotate-sound.mp3'));
+    rotateSound.setVolumeAsync(1)
+    await rotateSound.playAsync();
+    // Your sound is playing!
+console.log("SOUND", rotateSound)
+    // Don't forget to unload the sound from memory
+    // when you are done using the Sound object
+    // const playbackObject = new Audio.Sound();
+
+    // console.log('Loading Sound');
+    // const { rotateSound } = await Audio.Sound.createAsync(
+    //  require('../../assets/rotate-sound.mp3')
+    // );
+    // setRotateSound(rotateSound).then((sound => console.log(sound)));
+
+    // console.log('Playing Sound', rotateSound);
+    // rotateSound && await rotateSound.playAsync();
+  };
+
+  React.useEffect(() => {
+    return rotateSound
+      ? () => {
+          console.log('Unloading Sound');
+          rotateSound.unloadAsync();
+        }
+      : undefined;
+  }, [rotateSound]);
 
   const updateHandler = (entities, { touches, dispatch, events }) => {
     if (events.find((event) => event.type === 'restart-game')) {
@@ -188,6 +235,7 @@ const Tetris = () => {
       for (let i = 0; i < events.length; i++) {
         if (/^rotate/.test(events[i].type)) {
           tetrimino = applyRotation(tetrimino, grid, events[i].type);
+          playRotateSound();
         }
 
         if (events[i].type === 'hard-drop') {
@@ -434,21 +482,23 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flex: 1,
-    maxHeight: 550,
+    maxHeight: gameHeight,
     flexDirection: 'row',
   },
   gameTitleContainer: {
     flex: 1,
-    maxHeight: 100,
+    alignSelf: 'stretch',
+    maxHeight: titleContainerHeight,
     justifyContent: 'center',
   },
   gameTitle: {
+    textAlign: 'center',
     fontSize: 40,
     fontWeight: 'bold',
   },
   bottomBar: {
-    flex: 0.12,
-    height: 80,
+    flex: 1,
+    maxHeight: BOTTOM_BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -461,8 +511,8 @@ const styles = StyleSheet.create({
     height: 50,
   },
   gameContainer: {
-    marginLeft: 80,
-    marginRight: 80,
+    marginLeft: SIDEBAR_WIDTH,
+    marginRight: SIDEBAR_WIDTH,
   },
   pauseButton: {
     position: 'absolute',

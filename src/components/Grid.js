@@ -1,6 +1,10 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import { colors } from '../tetriminos';
+import { MAX_COLUMNS, SIDEBAR_WIDTH } from '../constants';
+
+const windowWidth = Dimensions.get('window').width;
+const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
 
 const Grid = ({ grid }) => {
   return (
@@ -43,8 +47,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cell: {
-    width: 20,
-    height: 20,
+    width: cellWidth,
+    height: cellWidth,
     borderColor: 'white',
     borderTopWidth: 1,
     borderLeftWidth: 1,

@@ -4,3 +4,7 @@ export const START_POSITION_Y = 17;
 export const START_UPDATE_FREQUENCY = 10;
 export const SPEED_CHANGE = 1;
 export const LINES = ['single', 'double', 'triple', 'tetris'];
+export const MAX_COLUMNS = 10;
+export const MAX_ROWS = 20;
+export const SIDEBAR_WIDTH = 80;
+export const BOTTOM_BAR_HEIGHT = 80;
