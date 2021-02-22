@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GameEngine } from 'react-native-game-engine';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import {
@@ -74,14 +74,24 @@ const Tetris = () => {
       setRunning(false);
       setGameOverModalVisible(true);
     }
+    if (e.type === 'start-game') {
+      setRunning(true);
+      handlePlaySound('music', true);
+    }
   };
 
-  const handlePlaySound = async (file) => {
+  useEffect(() => {
+    console.log(running, engine, "STARTING")
+    engine && engine.dispatch({ type: 'start-game' });
+  }, []);
+
+  const handlePlaySound = async (file, loop) => {
     const soundObject = new Audio.Sound();
     const paths = {
       rotate: require('../../assets/rotate-sound.mp3'),
       move: require('../../assets/rotate-sound.mp3'),
       'hard-drop': require('../../assets/hard-drop.mp3'),
+      music: require('../../assets/korobeiniki-orchestral.mp3'),
     };
     try {
       await soundObject.loadAsync(paths[file]);
@@ -90,6 +100,9 @@ const Tetris = () => {
         .then(async (playbackStatus) => {
           setTimeout(() => {
             soundObject.unloadAsync();
+            if (loop) {
+              handlePlaySound('music', true);
+            }
           }, playbackStatus.playableDurationMillis);
         })
         .catch((error) => {
@@ -102,7 +115,14 @@ const Tetris = () => {
 
   const updateHandler = (entities, { touches, dispatch, events }) => {
     if (events.find((event) => event.type === 'restart-game')) {
-      entities = restartGame(setHold, setNext, setLines, setLevel, setScore);
+      entities = restartGame(
+        setHold,
+        setNext,
+        setLines,
+        setLevel,
+        setScore,
+        handlePlaySound
+      );
     }
 
     let { screen, tetrimino, tetriminosBag, game } = entities;
@@ -503,6 +523,8 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 50,
     height: 50,
+    justifyContent: 'center',
+    alignItems:'center',
   },
   gameContainer: {
     marginLeft: SIDEBAR_WIDTH,
