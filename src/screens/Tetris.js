@@ -68,7 +68,6 @@ const Tetris = () => {
   const [holdPosible, setHoldPosible] = useState(true);
   const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
   const [pauseModalVisible, setPauseModalVisible] = useState(false);
-  const [rotateSound, setRotateSound] = React.useState();
 
   const onEvent = (e) => {
     if (e.type === 'game-over') {
@@ -77,40 +76,29 @@ const Tetris = () => {
     }
   };
 
-  const playRotateSound = async () => {
-    const rotateSound = new Audio.Sound();
-    Audio.setAudioModeAsync({
-      playThroughEarpieceAndroid: false,
-      shouldDuckAndroid: false,
-      staysActiveInBackground: true,
-    });
-    await rotateSound.loadAsync(require('../../assets/rotate-sound.mp3'));
-    rotateSound.setVolumeAsync(1)
-    await rotateSound.playAsync();
-    // Your sound is playing!
-console.log("SOUND", rotateSound)
-    // Don't forget to unload the sound from memory
-    // when you are done using the Sound object
-    // const playbackObject = new Audio.Sound();
-
-    // console.log('Loading Sound');
-    // const { rotateSound } = await Audio.Sound.createAsync(
-    //  require('../../assets/rotate-sound.mp3')
-    // );
-    // setRotateSound(rotateSound).then((sound => console.log(sound)));
-
-    // console.log('Playing Sound', rotateSound);
-    // rotateSound && await rotateSound.playAsync();
+  const handlePlaySound = async (file) => {
+    const soundObject = new Audio.Sound();
+    const paths = {
+      rotate: require('../../assets/rotate-sound.mp3'),
+      move: require('../../assets/rotate-sound.mp3'),
+      'hard-drop': require('../../assets/hard-drop.mp3'),
+    };
+    try {
+      await soundObject.loadAsync(paths[file]);
+      await soundObject
+        .playAsync()
+        .then(async (playbackStatus) => {
+          setTimeout(() => {
+            soundObject.unloadAsync();
+          }, playbackStatus.playableDurationMillis);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
-
-  React.useEffect(() => {
-    return rotateSound
-      ? () => {
-          console.log('Unloading Sound');
-          rotateSound.unloadAsync();
-        }
-      : undefined;
-  }, [rotateSound]);
 
   const updateHandler = (entities, { touches, dispatch, events }) => {
     if (events.find((event) => event.type === 'restart-game')) {
@@ -155,6 +143,7 @@ console.log("SOUND", rotateSound)
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-left' }
       );
@@ -172,6 +161,7 @@ console.log("SOUND", rotateSound)
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-right' }
       );
@@ -191,6 +181,7 @@ console.log("SOUND", rotateSound)
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-left' },
         'keepLeft'
@@ -209,6 +200,7 @@ console.log("SOUND", rotateSound)
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-right' },
         'keepRight'
@@ -226,6 +218,7 @@ console.log("SOUND", rotateSound)
         dirX,
         dirY,
         setScore,
+        null,
         dispatch,
         { type: 'game-over' }
       );
@@ -235,7 +228,7 @@ console.log("SOUND", rotateSound)
       for (let i = 0; i < events.length; i++) {
         if (/^rotate/.test(events[i].type)) {
           tetrimino = applyRotation(tetrimino, grid, events[i].type);
-          playRotateSound();
+          handlePlaySound('rotate');
         }
 
         if (events[i].type === 'hard-drop') {
@@ -432,6 +425,7 @@ console.log("SOUND", rotateSound)
             engine.dispatch({ type: 'move-down' });
           }}
           onLongPress={() => {
+            handlePlaySound('hard-drop');
             engine.dispatch({ type: 'hard-drop' });
           }}
         >
