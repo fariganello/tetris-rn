@@ -5,7 +5,7 @@ import { MAX_COLUMNS, MAX_ROWS, SIDEBAR_WIDTH } from '../constants';
 
 const windowWidth = Dimensions.get('window').width;
 const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
-console.log("CELL WIDTH", cellWidth)
+
 const Grid = ({ grid }) => {
   return (
     <View style={styles.grid}>

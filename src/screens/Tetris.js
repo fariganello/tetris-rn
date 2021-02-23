@@ -52,8 +52,8 @@ const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
 const gameHeight = cellWidth * MAX_ROWS;
 const titleContainerHeight =
   Dimensions.get('window').height - gameHeight - BOTTOM_BAR_HEIGHT;
-console.log("TITLE",titleContainerHeight)
-const Tetris = () => {
+
+  const Tetris = () => {
   const initialBag = generateTetriminosBag();
   const initialTetrimino = initialBag.pop();
   const initialGrid = createGrid();
@@ -70,7 +70,7 @@ const Tetris = () => {
   const [pauseModalVisible, setPauseModalVisible] = useState(false);
   const [musicPlayingStatus, setMusicPlayingStatus] = useState('nosound');
   const [musicTrack, setMusicTrack] = useState(null);
-console.log("WIDTH: ",windowWidth)
+
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       setRunning(false);
