@@ -52,7 +52,7 @@ const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
 const gameHeight = cellWidth * MAX_ROWS;
 const titleContainerHeight =
   Dimensions.get('window').height - gameHeight - BOTTOM_BAR_HEIGHT;
-
+console.log("TITLE",titleContainerHeight)
 const Tetris = () => {
   const initialBag = generateTetriminosBag();
   const initialTetrimino = initialBag.pop();
@@ -68,7 +68,9 @@ const Tetris = () => {
   const [holdPosible, setHoldPosible] = useState(true);
   const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
   const [pauseModalVisible, setPauseModalVisible] = useState(false);
-
+  const [musicPlayingStatus, setMusicPlayingStatus] = useState('nosound');
+  const [musicTrack, setMusicTrack] = useState(null);
+console.log("WIDTH: ",windowWidth)
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       setRunning(false);
@@ -76,22 +78,20 @@ const Tetris = () => {
     }
     if (e.type === 'start-game') {
       setRunning(true);
-      handlePlaySound('music', true);
+      handlePlayMusic('music', true);
     }
   };
 
   useEffect(() => {
-    console.log(running, engine, "STARTING")
     engine && engine.dispatch({ type: 'start-game' });
-  }, []);
+  }, [engine]);
 
-  const handlePlaySound = async (file, loop) => {
+  const handlePlaySound = async (file) => {
     const soundObject = new Audio.Sound();
     const paths = {
       rotate: require('../../assets/rotate-sound.mp3'),
       move: require('../../assets/rotate-sound.mp3'),
       'hard-drop': require('../../assets/hard-drop.mp3'),
-      music: require('../../assets/korobeiniki-orchestral.mp3'),
     };
     try {
       await soundObject.loadAsync(paths[file]);
@@ -100,29 +100,54 @@ const Tetris = () => {
         .then(async (playbackStatus) => {
           setTimeout(() => {
             soundObject.unloadAsync();
-            if (loop) {
-              handlePlaySound('music', true);
-            }
           }, playbackStatus.playableDurationMillis);
         })
         .catch((error) => {
+          // eslint-disable-next-line no-console
           console.log(error);
         });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    }
+  };
+
+  const updateScreenForSoundStatus = (status) => {
+    if (status.isPlaying && musicPlayingStatus !== 'playing') {
+      setMusicPlayingStatus('playing');
+    } else if (!status.isPlaying && musicPlayingStatus === 'playing') {
+      setMusicPlayingStatus('donepause');
+    }
+  };
+
+  const handlePlayMusic = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/Korobeiniki.mp3'),
+      {
+        shouldPlay: true,
+        isLooping: true,
+      },
+      updateScreenForSoundStatus
+    );
+    setMusicTrack(sound);
+    setMusicPlayingStatus('playing');
+  };
+
+  const pauseAndPlayRecording = async () => {
+    if (musicTrack != null) {
+      if (musicPlayingStatus === 'playing') {
+        await musicTrack.pauseAsync();
+        setMusicPlayingStatus('donepause');
+      } else {
+        await musicTrack.playAsync();
+        setMusicPlayingStatus('playing');
+      }
     }
   };
 
   const updateHandler = (entities, { touches, dispatch, events }) => {
     if (events.find((event) => event.type === 'restart-game')) {
-      entities = restartGame(
-        setHold,
-        setNext,
-        setLines,
-        setLevel,
-        setScore,
-        handlePlaySound
-      );
+      entities = restartGame(setHold, setNext, setLines, setLevel, setScore);
     }
 
     let { screen, tetrimino, tetriminosBag, game } = entities;
@@ -369,21 +394,26 @@ const Tetris = () => {
         <Text style={styles.gameTitle}>TETRIS</Text>
       </View>
       <View style={styles.topContainer}>
-        <HoldButton
-          title={'HOLD'}
-          onPress={() => {
-            engine.dispatch({ type: 'hold' });
-          }}
-        />
-        <TouchableOpacity
-          style={styles.pauseButton}
-          onPress={() => {
-            setPauseModalVisible(true);
-            setRunning(false);
-          }}
-        >
-          <AntDesign name="pause" size={50} color="black" />
-        </TouchableOpacity>
+        <View style={styles.sideBar}>
+          <HoldButton
+            title={'HOLD'}
+            onPress={() => {
+              engine.dispatch({ type: 'hold' });
+            }}
+          />
+          <TouchableOpacity
+            style={styles.pauseButton}
+            onPress={() => {
+              if (!gameOverModalVisible) {
+                setPauseModalVisible(true);
+                setRunning(false);
+                pauseAndPlayRecording();
+              }
+            }}
+          >
+            <AntDesign name="pause" size={50} color="black" />
+          </TouchableOpacity>
+        </View>
         <GameEngine
           style={styles.gameContainer}
           ref={(ref) => setEngine(ref)}
@@ -481,6 +511,7 @@ const Tetris = () => {
           setPauseModalVisible={setPauseModalVisible}
           running={running}
           setRunning={setRunning}
+          pauseAndPlayRecording={pauseAndPlayRecording}
         />
       </View>
     </View>
@@ -498,6 +529,11 @@ const styles = StyleSheet.create({
     flex: 1,
     maxHeight: gameHeight,
     flexDirection: 'row',
+    backgroundColor: 'grey',
+  },
+  sideBar: {
+    width: SIDEBAR_WIDTH,
+    backgroundColor: 'red',
   },
   gameTitleContainer: {
     flex: 1,
@@ -524,11 +560,11 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     justifyContent: 'center',
-    alignItems:'center',
+    alignItems: 'center',
   },
   gameContainer: {
-    marginLeft: SIDEBAR_WIDTH,
     marginRight: SIDEBAR_WIDTH,
+    backgroundColor: 'yellow',
   },
   pauseButton: {
     position: 'absolute',

@@ -131,12 +131,11 @@ export const mergePiece = (tetrimino, grid) => {
 
 // GAME
 
-export const restartGame = (setHold, setNext, setLines, setLevel, setScore, handlePlaySound) => {
+export const restartGame = (setHold, setNext, setLines, setLevel, setScore) => {
   const initialBag = generateTetriminosBag();
   const initialTetrimino = initialBag.pop();
   const initialGrid = createGrid();
 
-  handlePlaySound('music', true);
   setHold([]);
   setNext(initialBag[initialBag.length - 1][0]);
   setLines(0);

@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../tetriminos';
+import { SIDEBAR_WIDTH } from '../constants';
 
 const Hold = ({ hold }) => {
   const shape = hold[0];
-
   return (
     <View style={styles.holdContainer}>
       <Text style={styles.title}>HOLD</Text>
@@ -34,8 +34,8 @@ const Hold = ({ hold }) => {
 const styles = StyleSheet.create({
   holdContainer: {
     position: 'absolute',
-    left: -80,
-    bottom: 320,
+    left: -SIDEBAR_WIDTH,
+    top: 0,
     height: 80,
     width: 80,
     alignSelf: 'flex-end',

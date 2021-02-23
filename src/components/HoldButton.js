@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SIDEBAR_WIDTH } from '../constants';
 
 const HoldButton = ({ title, onPress }) => {
   return (
@@ -12,10 +13,10 @@ const HoldButton = ({ title, onPress }) => {
 const styles = StyleSheet.create({
   holdButton: {
     position: 'absolute',
-    left: 5,
+    left: 10,
     bottom: 10,
-    height: 70,
-    width: 70,
+    height: 60,
+    width: 60,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#007bff',
