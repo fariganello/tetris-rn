@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GameEngine } from 'react-native-game-engine';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import {
-  Alert,
+  Dimensions,
   StatusBar,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Audio } from 'expo-av';
 import Grid from '../components/Grid';
 import Lines from '../components/Lines';
 import Level from '../components/Level';
@@ -33,14 +35,24 @@ import {
   updateGrid,
 } from '../logic';
 import {
+  BOTTOM_BAR_HEIGHT,
   LINES,
   LINES_TO_LEVELUP,
+  MAX_COLUMNS,
+  MAX_ROWS,
+  SIDEBAR_WIDTH,
   SPEED_CHANGE,
   START_POSITION_X,
   START_POSITION_Y,
   START_UPDATE_FREQUENCY,
 } from '../constants';
 
+const windowWidth = Dimensions.get('window').width;
+const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
+const gameHeight = cellWidth * MAX_ROWS;
+const titleContainerHeight =
+  Dimensions.get('window').height - gameHeight - BOTTOM_BAR_HEIGHT;
+console.log("TITLE",titleContainerHeight)
 const Tetris = () => {
   const initialBag = generateTetriminosBag();
   const initialTetrimino = initialBag.pop();
@@ -56,11 +68,80 @@ const Tetris = () => {
   const [holdPosible, setHoldPosible] = useState(true);
   const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
   const [pauseModalVisible, setPauseModalVisible] = useState(false);
-
+  const [musicPlayingStatus, setMusicPlayingStatus] = useState('nosound');
+  const [musicTrack, setMusicTrack] = useState(null);
+console.log("WIDTH: ",windowWidth)
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       setRunning(false);
       setGameOverModalVisible(true);
+    }
+    if (e.type === 'start-game') {
+      setRunning(true);
+      handlePlayMusic('music', true);
+    }
+  };
+
+  useEffect(() => {
+    engine && engine.dispatch({ type: 'start-game' });
+  }, [engine]);
+
+  const handlePlaySound = async (file) => {
+    const soundObject = new Audio.Sound();
+    const paths = {
+      rotate: require('../../assets/rotate-sound.mp3'),
+      move: require('../../assets/rotate-sound.mp3'),
+      'hard-drop': require('../../assets/hard-drop.mp3'),
+    };
+    try {
+      await soundObject.loadAsync(paths[file]);
+      await soundObject
+        .playAsync()
+        .then(async (playbackStatus) => {
+          setTimeout(() => {
+            soundObject.unloadAsync();
+          }, playbackStatus.playableDurationMillis);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  const updateScreenForSoundStatus = (status) => {
+    if (status.isPlaying && musicPlayingStatus !== 'playing') {
+      setMusicPlayingStatus('playing');
+    } else if (!status.isPlaying && musicPlayingStatus === 'playing') {
+      setMusicPlayingStatus('donepause');
+    }
+  };
+
+  const handlePlayMusic = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/Korobeiniki.mp3'),
+      {
+        shouldPlay: true,
+        isLooping: true,
+      },
+      updateScreenForSoundStatus
+    );
+    setMusicTrack(sound);
+    setMusicPlayingStatus('playing');
+  };
+
+  const pauseAndPlayRecording = async () => {
+    if (musicTrack != null) {
+      if (musicPlayingStatus === 'playing') {
+        await musicTrack.pauseAsync();
+        setMusicPlayingStatus('donepause');
+      } else {
+        await musicTrack.playAsync();
+        setMusicPlayingStatus('playing');
+      }
     }
   };
 
@@ -107,6 +188,7 @@ const Tetris = () => {
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-left' }
       );
@@ -124,6 +206,7 @@ const Tetris = () => {
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-right' }
       );
@@ -143,6 +226,7 @@ const Tetris = () => {
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-left' },
         'keepLeft'
@@ -161,6 +245,7 @@ const Tetris = () => {
         dirX,
         dirY,
         setScore,
+        handlePlaySound,
         dispatch,
         { type: 'move-continued-right' },
         'keepRight'
@@ -178,6 +263,7 @@ const Tetris = () => {
         dirX,
         dirY,
         setScore,
+        null,
         dispatch,
         { type: 'game-over' }
       );
@@ -187,6 +273,7 @@ const Tetris = () => {
       for (let i = 0; i < events.length; i++) {
         if (/^rotate/.test(events[i].type)) {
           tetrimino = applyRotation(tetrimino, grid, events[i].type);
+          handlePlaySound('rotate');
         }
 
         if (events[i].type === 'hard-drop') {
@@ -303,22 +390,30 @@ const Tetris = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.gameTitleContainer}>
+        <Text style={styles.gameTitle}>TETRIS</Text>
+      </View>
       <View style={styles.topContainer}>
-        <HoldButton
-          title={'HOLD'}
-          onPress={() => {
-            engine.dispatch({ type: 'hold' });
-          }}
-        />
-        <TouchableOpacity
-          style={styles.pauseButton}
-          onPress={() => {
-            setPauseModalVisible(true);
-            setRunning(false);
-          }}
-        >
-          <AntDesign name="pause" size={50} color="black" />
-        </TouchableOpacity>
+        <View style={styles.sideBar}>
+          <HoldButton
+            title={'HOLD'}
+            onPress={() => {
+              engine.dispatch({ type: 'hold' });
+            }}
+          />
+          <TouchableOpacity
+            style={styles.pauseButton}
+            onPress={() => {
+              if (!gameOverModalVisible) {
+                setPauseModalVisible(true);
+                setRunning(false);
+                pauseAndPlayRecording();
+              }
+            }}
+          >
+            <AntDesign name="pause" size={50} color="black" />
+          </TouchableOpacity>
+        </View>
         <GameEngine
           style={styles.gameContainer}
           ref={(ref) => setEngine(ref)}
@@ -380,6 +475,7 @@ const Tetris = () => {
             engine.dispatch({ type: 'move-down' });
           }}
           onLongPress={() => {
+            handlePlaySound('hard-drop');
             engine.dispatch({ type: 'hard-drop' });
           }}
         >
@@ -415,6 +511,7 @@ const Tetris = () => {
           setPauseModalVisible={setPauseModalVisible}
           running={running}
           setRunning={setRunning}
+          pauseAndPlayRecording={pauseAndPlayRecording}
         />
       </View>
     </View>
@@ -425,14 +522,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   topContainer: {
     flex: 1,
+    maxHeight: gameHeight,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    backgroundColor: 'grey',
+  },
+  sideBar: {
+    width: SIDEBAR_WIDTH,
+    backgroundColor: 'red',
+  },
+  gameTitleContainer: {
+    flex: 1,
+    alignSelf: 'stretch',
+    maxHeight: titleContainerHeight,
+    justifyContent: 'center',
+  },
+  gameTitle: {
+    textAlign: 'center',
+    fontSize: 40,
+    fontWeight: 'bold',
   },
   bottomBar: {
-    height: 80,
+    flex: 1,
+    maxHeight: BOTTOM_BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -440,12 +556,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   buttonContainer: {
+    flex: 1,
     width: 50,
     height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gameContainer: {
-    flex: 1,
-    marginLeft: 80,
+    marginRight: SIDEBAR_WIDTH,
+    backgroundColor: 'yellow',
   },
   pauseButton: {
     position: 'absolute',
@@ -455,7 +574,7 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 
 export default Tetris;

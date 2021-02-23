@@ -6,6 +6,7 @@ const PauseModal = ({
   setPauseModalVisible,
   running,
   setRunning,
+  pauseAndPlayRecording
 }) => {
   return (
     <Modal
@@ -24,6 +25,7 @@ const PauseModal = ({
             onPress={() => {
               setPauseModalVisible(!pauseModalVisible);
               setRunning(!running);
+              pauseAndPlayRecording();
             }}
           >
             <Text style={styles.textStyle}>RESUME</Text>

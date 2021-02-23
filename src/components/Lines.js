@@ -13,7 +13,7 @@ const Lines = ({ linesCounter }) => {
 const styles = StyleSheet.create({
   linesCounter: {
     position: 'absolute',
-    right: 0,
+    right: -80,
     bottom: 0,
     height: 50,
     width: 80,

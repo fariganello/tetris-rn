@@ -1,7 +1,11 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import { colors } from '../tetriminos';
+import { MAX_COLUMNS, MAX_ROWS, SIDEBAR_WIDTH } from '../constants';
 
+const windowWidth = Dimensions.get('window').width;
+const cellWidth = (windowWidth - SIDEBAR_WIDTH * 2) / MAX_COLUMNS;
+console.log("CELL WIDTH", cellWidth)
 const Grid = ({ grid }) => {
   return (
     <View style={styles.grid}>
@@ -34,17 +38,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    height: 100,
-    width: 200,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   cell: {
-    width: 20,
-    height: 20,
+    width: cellWidth,
+    height: cellWidth,
     borderColor: 'white',
     borderTopWidth: 1,
     borderLeftWidth: 1,

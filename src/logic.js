@@ -194,6 +194,7 @@ export const resolveCollision = (
   dirX,
   dirY,
   setScore,
+  handlePlaySound,
   dispatch,
   event,
   keepMovingDirection
@@ -212,6 +213,7 @@ export const resolveCollision = (
       dirX,
       dirY,
       setScore,
+      handlePlaySound,
       dispatch,
       event,
       keepMovingDirection
@@ -260,6 +262,7 @@ export const resolveMove = (
   dirX,
   dirY,
   setScore,
+  handlePlaySound,
   dispatch,
   event,
   keepMovingDirection
@@ -268,6 +271,8 @@ export const resolveMove = (
   const { level, score } = game;
 
   tetrimino = updateTetrimino(tetrimino, dirX, dirY, orientation);
+
+  handlePlaySound && handlePlaySound('move', false);
 
   if (dirY) {
     const newScore = calculateScore('softDrop', level, 1);

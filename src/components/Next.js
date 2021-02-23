@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../tetriminos';
+import { SIDEBAR_WIDTH } from '../constants';
 
 const Next = ({ next }) => {
   return (
@@ -32,8 +33,8 @@ const Next = ({ next }) => {
 const styles = StyleSheet.create({
   nextContainer: {
     position: 'absolute',
-    right: 0,
-    bottom: 320,
+    right: -SIDEBAR_WIDTH,
+    top: 0,
     height: 80,
     width: 80,
     alignSelf: 'flex-end',
